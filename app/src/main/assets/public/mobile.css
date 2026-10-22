@@ -1,0 +1,23 @@
+html,body{overflow-x:hidden!important;-webkit-tap-highlight-color:transparent}
+.neural-background,.geometric-shapes,.neural-lines,.navigation-buttons,.btn-setting{display:none!important}
+.container{padding:8px!important;max-width:100%!important;margin:0!important;width:100%!important}
+.container>br{display:none!important}
+.header{display:flex!important;align-items:center!important;gap:10px!important;padding:10px 12px!important;border-radius:16px!important;margin:0 0 8px!important;position:static!important}
+.header img{width:38px!important;height:38px!important}
+.header h1{font-size:18px!important;margin:0!important}
+.subtitle,.header p{font-size:10px!important;margin:2px 0!important}
+.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;max-height:none!important;overflow:visible!important;padding:0!important}
+.card{padding:10px 8px!important;border-radius:16px!important;min-width:0!important}
+.card-title{font-size:10px!important;line-height:1.2!important;margin-bottom:8px!important}
+.data-row{gap:6px!important}
+.data-item{padding:6px 4px!important;border-radius:10px!important;min-width:0!important}
+.data-value{font-size:17px!important}.data-label{font-size:9px!important}
+.info-bar{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+canvas,svg{max-width:100%!important}
+table{display:block;overflow-x:auto;max-width:100%}
+select,input,button{font-size:14px!important;min-height:36px}
+/* tiket */
+.content{padding:8px!important;gap:10px!important}
+.kpi-strip{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.grid2,.grid3,.grid-60-40,.grid-40-60,.followup-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}
+.header-actions{flex-wrap:wrap!important}

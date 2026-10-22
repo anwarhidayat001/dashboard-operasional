@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="css/pkimle.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="css/templatemo-neural-style.css" rel="stylesheet">
+    <title>CeisMon - Monitoring Server</title>
+    <style>
+        
+        /* Status Cell - PENTING: ini yang bikin scroll hanya di kolom status */
+        td.status-cell {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 1px solid #444 !important;
+            vertical-align: middle !important;
+            /* Fixed width untuk kolom status */
+            width: 600px !important;
+            min-width: 600px !important;
+            max-width: 600px !important;
+        }
+        /* Container dot — scroll HANYA di dalam div ini */
+        .status-dots {
+            display: block !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            white-space: nowrap !important;
+            padding: 2px 2px 3px 2px; /* padding bawah lebih besar untuk scrollbar */
+            /* Width harus sama dengan td.status-cell */
+            width: 600px !important;
+            min-width: 600px !important;
+            max-width: 600px !important;
+            min-height: 35px;
+            box-sizing: border-box;
+            direction: ltr; /* pastikan scroll dari kiri ke kanan */
+            transform: scale(0.9);
+        }
+        /* Scrollbar styling - lebih kecil dan fleksibel */
+/* Styling scrollbar */
+.status-dots::-webkit-scrollbar {
+    width: 0.2vw; /* Menggunakan unit relatif, tetap kecil dan fleksibel */
+    height: 0.2vw; /* Untuk scrollbar horizontal */
+}
+/* Styling track scrollbar */
+.status-dots::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+}
+/* Styling thumb scrollbar */
+.status-dots::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 2px;
+    width: 0.5vw; /* Thumb dengan ukuran relatif */
+}
+/* Styling thumb saat hover */
+.status-dots::-webkit-scrollbar-thumb:hover {
+    background: var(--card-bg);
+}
+        /* Dot style */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        .status-dot:hover {
+            transform: scale(1.5);
+        }
+        /* Dot warna */
+        .status-dot-up { background: #4CAF50; }
+        .status-dot-error { background: #FF9800; }
+        .status-dot-down { background: #f44336; }
+        /* =================================== */
+        /* ===== ORIGINAL CSS FROM FILE ====== */
+        /* =================================== */
+        .info-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .info-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .info-item label {
+            display: block;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .info-item span {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--card-text);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        .status-indicator.error { background-color: #f44336; }
+        .status-indicator.warning { background-color: #FF9800; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* ANIMASI BERKEDIP UNTUK BADGE */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .server-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .stat-badge {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-badge.up { background: #4CAF50; color: white; }
+        
+        /* BADGE ERROR - Berkedip jika ada error */
+        .stat-badge.error { 
+            background: #FF9800; 
+            color: white; 
+        }
+        .stat-badge.error.blinking {
+            animation: blink 1s ease-in-out infinite;
+        }
+        
+        /* BADGE DOWN - Berkedip jika ada down */
+        .stat-badge.down { 
+            background: #f44336; 
+            color: white; 
+        }
+        .stat-badge.down.blinking {
+            animation: blink 1s ease-in-out infinite;
+        }
+        
+        .category-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .category-btn {
+            padding: 12px 28px;
+            border: 2px solid transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
+            color: var(--card-text);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        .category-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .chart-container, .table-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        .chart-container h2, .table-container h2 {
+            color: var(--card-text);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .chart-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        .chart-btn.add-server {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            background: var(--hover-bg);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .line-chart {
+            min-width: 100%;
+            justify-content: center;
+        }
+        /* SVG Chart Styles */
+        svg {
+            overflow: visible;
+        }
+        .chart-line {
+            fill: var(--card-bg);
+            stroke-width: 3;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+        .chart-dot {
+            fill: var(--card-bg);
+            stroke-width: 2;
+            transition: r 0.2s ease;
+            cursor: pointer;
+        }
+        .chart-dot:hover {
+            r: 8 !important;
+        }
+        .chart-grid {
+            stroke: var(--border-color);
+            stroke-width: 1;
+            opacity: 0.5;
+        }
+        .chart-axis {
+            stroke: var(--text-secondary);
+            stroke-width: 2;
+        }
+        .chart-label {
+            font-size: 12px;
+            fill: var(--text-secondary);
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: var(--card-text);
+            padding: 5px 12px;
+            background: var(--hover-bg);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .legend-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        .legend-color {
+            width: 25px;
+            height: 4px;
+            border-radius: 2px;
+        }
+        /* Table Styles - PENTING: JANGAN SCROLL DI TABLE WRAPPER */
+        .table-wrapper {
+            overflow: visible !important;
+        }
+        table { 
+            width: 100%; 
+            margin: 5px auto; 
+            border-collapse: collapse; 
+            text-align: center; 
+            border: 1px solid #444;
+        }
+        
+        td { 
+            border: 1px solid #444; 
+            padding: 8px 10px; 
+            text-align: center; 
+            background: transparent !important; 
+            box-shadow: none !important; 
+            border-radius: 0 !important; 
+        }
+        th {
+            padding: 15px;
+            border: 1px solid #444;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+        td {
+            color: var(--card-text);
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+        .action-btn.edit {
+            background: #2196F3;
+            color: white;
+        }
+        .action-btn.edit:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+        .action-btn.delete {
+            background: #f44336;
+            color: white;
+        }
+        .action-btn.delete:hover {
+            background: #d32f2f;
+            transform: scale(1.05);
+        }
+        .value-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin: 3px;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #c62828;
+            box-shadow: 0 4px 15px rgba(198, 40, 40, 0.2);
+        }
+        [data-theme="dark"] .error-message {
+            background: rgba(198, 40, 40, 0.2);
+            color: #ff8a80;
+            border-left-color: #ff8a80;
+        }
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .control-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        .control-btn:hover {
+            transform: translateY(-2px);
+        }
+        .control-btn.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .control-btn.success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+        }
+        .control-btn.danger {
+            background: linear-gradient(135deg, #f44336, #e91e63);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .info-bar {
+                grid-template-columns: 1fr;
+            }
+            .category-buttons {
+                gap: 8px;
+            }
+            .category-btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            .chart-wrapper {
+                height: 300px;
+            }
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            th, td {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+            .action-btn {
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+            
+            td.status-cell {
+                width: 300px !important;
+                min-width: 300px !important;
+                max-width: 300px !important;
+            }
+        }
+        
+        /* Legend dicoret saat nonaktif */
+.legend-item.disabled {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+/* Sembunyikan line & dot server */
+.chart-line.hidden,
+.chart-dot.hidden {
+    display: none !important;
+}
+        
+
+        /* Update indicator */
+        .update-indicator {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-left: 8px;
+        }
+        .subtitle {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <div class="neural-background"></div>
+    <div class="geometric-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    <div class="neural-lines">
+        <div class="neural-line"></div>
+        <div class="neural-line"></div>
+        <div class="neural-line"></div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+                <a><img src="css/pkimle.png" width="100" height="100" alt="Logo"></a>
+                <div class="header-content">
+                    <h1>CeisMon</h1>
+                    <p class="subtitle">
+                        Real-time Data Monitoring Server Ceisa 4.0
+                        <span id="updateIndicator" class="update-indicator"></span>
+                    </p>
+                    <!-- Add buttons below the subtitle -->
+                    <div class="navigation-buttons">
+                        <a href="index.html" class="btn">Monitoring Dashboard</a>
+                        <a href="monitoring.html" class="btn">Monitoring Grafik</a>
+                        <a href="server.html" class="btn">Monitoring Server</a>
+                        <a href="tiket.html" class="btn">Monitoring Tiket</a>
+                        <!-- <a href="tools_ops.html" class="btn">Tools Operasional</a> -->
+                        <a href="serda.html" class="btn">Tools Operasional</a>
+                    </div>
+                </div>
+                <div class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode"></div>
+            </div>
+        <div id="errorContainer"></div>
+        <br>
+        <!-- Chart Section -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>📊 Grafik Server</h2> 
+                <div class="range-buttons" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+    <label style="color:var(--text-secondary);font-weight:600;">Tampilkan:</label>
+    <div id="serverRangeButtons"></div>
+    <span style="color:var(--text-secondary);font-size:0.85em;">atau range:</span>
+    <input type="datetime-local" id="rangeFromInput"
+        style="padding:6px 10px;border:2px solid var(--border-color);border-radius:10px;
+        background:var(--card-bg);color:var(--card-text);font-size:0.85em;">
+    <span style="color:var(--text-secondary);font-size:0.85em;">s/d</span>
+    <input type="datetime-local" id="rangeToInput"
+        style="padding:6px 10px;border:2px solid var(--border-color);border-radius:10px;
+        background:var(--card-bg);color:var(--card-text);font-size:0.85em;">
+    <button onclick="applyDateRange()" style="padding:6px 14px;border:none;border-radius:10px;
+        background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-weight:600;
+        cursor:pointer;font-size:0.85em;">Tampilkan</button>
+    <button id="btnRealtimeBack" onclick="resetToRealtime()" style="display:none;padding:6px 14px;border:none;border-radius:10px;
+        background:linear-gradient(135deg,#11998e,#38ef7d);color:white;font-weight:600;
+        cursor:pointer;font-size:0.85em;">⟳ Realtime</button>
+    <button onclick="showDownloadLogModal()" style="padding:6px 14px;border:none;border-radius:10px;
+        background:linear-gradient(135deg,#e65c00,#f9d423);color:white;font-weight:600;
+        cursor:pointer;font-size:0.85em;">📥 Download</button>
+</div>
+            </div>
+            <div class="chart-wrapper">
+                <svg id="lineChart" class="line-chart" width="100%" height="350"></svg>
+            </div>
+            <div id="legend" class="legend"></div>
+<!--            <button onclick="showDownloadLogModal()" style="
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95em;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+">📅 Download Log Harian</button>-->
+        </div>
+        
+        <div class="server-stats" id="serverStats">
+            <div class="stat-badge up">
+                <span>UP: <strong id="upCount">0</strong></span>
+            </div>
+            <div class="stat-badge error">
+                <span>ERROR: <strong id="errorCount">0</strong></span>
+            </div>
+            <div class="stat-badge down">
+                <span>DOWN: <strong id="downCount">0</strong></span>
+            </div>
+        </div>
+        <!-- Table Section -->
+        <div class="table-container">
+            <h2>📋 Data Detail</h2><button class="chart-btn add-server" onclick="addNewServer()">➕ Add Server</button>
+            <div class="table-wrapper">
+                <div id="tableContent">
+                    <div class="loading">Menunggu data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/server.js"></script>
+    <script>
+// Auto-scroll dots ke kanan setelah tabel di-render
+const _tcObs = new MutationObserver(() => {
+    document.querySelectorAll('.status-dots').forEach(d => { d.scrollLeft = d.scrollWidth; });
+});
+const _tc = document.getElementById('tableContent');
+if (_tc) _tcObs.observe(_tc, { childList:true, subtree:true });
+    </script>
+</body>
+</html>

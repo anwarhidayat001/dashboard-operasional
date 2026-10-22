@@ -1,0 +1,476 @@
+{
+ "JUMLAH MANIFES": {
+  "RKSP": {
+   "orange": 0,
+   "red": 0,
+   "green": 6000,
+   "yellow": 0
+  },
+  "rksp": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "manifes": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "MANIFES": {
+   "orange": 0,
+   "red": 0,
+   "green": 6000,
+   "yellow": 0
+  }
+ },
+ "TOTAL NOPEN": {
+  "kek": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "tpb": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "pib": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "peb": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "ftz": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  }
+ },
+ "TOTAL NOPEN CN": {
+  "impor": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "ekspor": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "pibk": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "ecommerce": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  }
+ },
+ "JUMLAH POS MANIFES": {
+  "inward": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "INWARD": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "OUTWARD": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "outward": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  }
+ },
+ "TOTAL BILLING": {
+  "sawit": {
+   "orange": 200,
+   "red": 300,
+   "green": 50000,
+   "yellow": 100
+  },
+  "mpn": {
+   "orange": 200,
+   "red": 300,
+   "green": 50000,
+   "yellow": 100
+  }
+ },
+ "IMEI": {
+  "total_imei": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  }
+ },
+ "REJECT DOKUMEN": {
+  "kek": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  },
+  "tpb": {
+   "orange": 500,
+   "red": 600,
+   "green": 300,
+   "yellow": 400
+  },
+  "pib": {
+   "orange": 500,
+   "red": 600,
+   "green": 300,
+   "yellow": 400
+  },
+  "peb": {
+   "orange": 300,
+   "red": 500,
+   "green": 200,
+   "yellow": 250
+  }
+ },
+ "ANTRIAN KIRIM LNSW": {
+  "kek": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  },
+  "tpb": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  },
+  "pib": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  },
+  "peb": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  }
+ },
+ "TUNGGU PROSES LNSW": {
+  "kek": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  },
+  "tpb": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  },
+  "pib": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  },
+  "peb": {
+   "orange": 250,
+   "red": 300,
+   "green": 100,
+   "yellow": 200
+  }
+ },
+ "VALIDASI DOKUMEN": {
+  "kek": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "tpb": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "pib": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "peb": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  }
+ },
+ "SIAP DIJALURKAN": {
+  "kek": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "tpb": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "pib": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "peb": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  }
+ },
+ "PROSES PENJALURAN": {
+  "kek": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "tpb": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "pib": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "peb": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  }
+ },
+ "PROSES PINDAH DATA": {
+  "kek": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "tpb": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "pib": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  },
+  "peb": {
+   "orange": 250,
+   "red": 300,
+   "green": 150,
+   "yellow": 200
+  }
+ },
+ "REKON BILLING": {
+  "sawit": {
+   "orange": 200,
+   "red": 300,
+   "green": 50000,
+   "yellow": 100
+  },
+  "mpn": {
+   "orange": 200,
+   "red": 300,
+   "green": 50000,
+   "yellow": 100
+  }
+ },
+ "BILLING TERKIRIM": {
+  "sawit": {
+   "orange": 200,
+   "red": 300,
+   "green": 50000,
+   "yellow": 100
+  },
+  "mpn": {
+   "orange": 200,
+   "red": 300,
+   "green": 50000,
+   "yellow": 100
+  }
+ },
+ "JUMLAH DOKUMEN MANIFES": {
+  "inward": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 1000
+  },
+  "rksp": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "INWARD": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "OUTWARD": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "outward": {
+   "orange": 0,
+   "red": 3000,
+   "green": 50000,
+   "yellow": 0
+  }
+ },
+ "KIRIM_BILLING": {
+  "sawit": {
+   "orange": 25,
+   "red": 50,
+   "green": 15,
+   "yellow": 20
+  }
+ },
+ "TOTAL DOKUMEN CN": {
+  "impor": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "ekspor": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "pibk": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "ecommerce": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  }
+ },
+ "KONFIRMASI PEMBAYARAN": {
+  "tpb": {
+   "orange": 6000,
+   "red": 7000,
+   "green": 50000,
+   "yellow": 9000
+  },
+  "pib": {
+   "orange": 6000,
+   "red": 7000,
+   "green": 50000,
+   "yellow": 9000
+  },
+  "peb": {
+   "orange": 6000,
+   "red": 7000,
+   "green": 50000,
+   "yellow": 9000
+  },
+  "ftz": {
+   "orange": 6000,
+   "red": 7000,
+   "green": 50000,
+   "yellow": 9000
+  }
+ },
+ "PEREKAMAN DOKUMEN": {
+  "kek": {
+   "orange": 200,
+   "red": 300,
+   "green": 50000,
+   "yellow": 100
+  },
+  "tpb": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "pib": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "peb": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  },
+  "ftz": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  }
+ },
+ "IMEI 40": {
+  "total_imei": {
+   "orange": 0,
+   "red": 0,
+   "green": 50000,
+   "yellow": 0
+  }
+ }
+}
