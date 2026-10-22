@@ -1,0 +1,3232 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+        <link rel="icon" href="css/pkimle.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="css/templatemo-neural-style.css" rel="stylesheet">
+        <title>CeisMon - Monitoring Tiket</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/canvas.min.js"></script>
+<script src="js/chart.umd.js"></script>
+<script src="js/xlsx.full.min.js"></script>
+<style>
+:root{--bg1:#dfded6;--bg2:#d3d3d3;--surface:rgba(255,255,255,.95);--surface2:#f7fafc;--border:rgba(45,55,72,.12);--border2:#d3d3d3;--text:#2d3748;--muted:#718096;--accent:#667eea;--accent2:#764ba2;--danger:#f56565;--warn:#ed8936;--success:#48bb78;--info:#4299e1;--font-mono:'Space Mono',monospace;--font-body:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;--radius:14px;--radius-sm:10px;--header-height: 110px;--shadow:0 10px 30px rgba(0,0,0,.15)}
+[data-theme="dark"]{--bg1:#1a202c;--bg2:#2d3748;--surface:rgba(45,55,72,.95);--surface2:#374151;--border:rgba(255,255,255,.08);--border2:#4a5568;--text:#e2e8f0;--muted:#a0aec0;--shadow:0 10px 30px rgba(0,0,0,.35)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:var(--font-body);background:linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);background-attachment:fixed;color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}button{font-family:var(--font-body);cursor:pointer}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+mark{background:rgba(124,106,247,.3);color:var(--text);border-radius:2px}
+.shell{display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;gap:16px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar-logo{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--accent);white-space:nowrap}
+.topbar-logo span{color:var(--accent2)}
+.topbar-nav{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+.nav-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:.78rem;font-weight:500;transition:all .2s}
+.nav-btn:hover,.nav-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.search-wrap{position:relative}
+.search-wrap input{padding:7px 14px 7px 34px;border-radius:20px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.8rem;width:210px;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-wrap::before{content:'⌕';position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1rem}
+.theme-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.95rem;display:flex;align-items:center;justify-content:center}
+.refresh-badge{font-size:.7rem;color:var(--muted);white-space:nowrap;font-family:var(--font-mono)}
+.content{padding: calc(var(--header-height)) 24px 20px;;display:flex;flex-direction:column;gap:20px}
+.kpi-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi-card[onclick]:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent-color,var(--accent))}
+.kpi-purple{--accent-color:var(--accent)}.kpi-teal{--accent-color:var(--accent2)}.kpi-red{--accent-color:var(--danger)}.kpi-orange{--accent-color:var(--warn)}.kpi-green{--accent-color:var(--success)}.kpi-blue{--accent-color:var(--info)}
+.kpi-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px;font-weight:600}
+.kpi-val{font-family:var(--font-mono);font-size:1.7rem;font-weight:700;color:var(--text);line-height:1}
+.kpi-sub{font-size:.68rem;color:var(--muted);margin-top:4px}
+.kpi-badge{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;padding:2px 8px;border-radius:20px;margin-top:5px;font-weight:600}
+.kpi-danger{background:rgba(245,101,101,.15);color:var(--danger)}.kpi-warn{background:rgba(237,137,54,.15);color:var(--warn)}.kpi-ok{background:rgba(72,187,120,.15);color:var(--success)}.kpi-info{background:rgba(99,179,237,.15);color:var(--info)}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.section-title{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:3px;height:13px;border-radius:2px;background:var(--accent);display:block;flex-shrink:0}
+.grid2{display:grid;grid-template-columns: 1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:50fr 30fr 20fr;gap:16px}
+.grid-60-40{display:grid;grid-template-columns:60fr 40fr;gap:16px}
+.grid-40-60{display:grid;grid-template-columns:40fr 60fr;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.chart-wrap{position:relative;width:100%}
+.daily-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.daily-row:last-child{border-bottom:none}
+.daily-label{font-size:.75rem;color:var(--muted);min-width:75px;font-family:var(--font-mono)}
+.daily-bars{flex:1;display:flex;flex-direction:column;gap:4px}
+.bar-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.bar-fill.masuk{background:var(--accent)}.bar-fill.selesai{background:var(--accent2)}
+.daily-nums{font-size:.72rem;font-family:var(--font-mono);min-width:60px;text-align:right}
+.daily-nums .n1{color:var(--text)}.daily-nums .n2{color:var(--accent2)}
+.officer-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.officer-row:last-child{border-bottom:none}
+.rank{font-family:var(--font-mono);font-size:.68rem;color:var(--muted);min-width:20px}
+.rank.gold{color:#f6c90e}.rank.silver{color:#aaa}.rank.bronze{color:#cd7f32}
+.officer-name{flex:1;font-size:.8rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.officer-bar{width:80px;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.officer-bar-fill{height:100%;border-radius:2px;background:var(--accent)}
+.officer-nums{font-family:var(--font-mono);font-size:.72rem;min-width:48px;text-align:right}
+.officer-delta{font-size:.68rem;font-weight:600;min-width:28px;text-align:right}
+.delta-up{color:var(--success)}.delta-dn{color:var(--danger)}.delta-eq{color:var(--muted)}
+.urgent-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.urgent-item:last-child{border-bottom:none}
+.urgent-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.urgent-dot.danger{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+.urgent-dot.warn{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.urgent-dot.ok{background:var(--success)}
+.urgent-body{flex:1;min-width:0}
+.urgent-id{font-family:var(--font-mono);font-size:.72rem;color:var(--accent)}
+.urgent-meta{font-size:.72rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:20px;flex-shrink:0;white-space:nowrap}
+.badge-danger{background:rgba(245,101,101,.15);color:var(--danger);border:1px solid rgba(245,101,101,.25)}
+.badge-warn{background:rgba(237,137,54,.15);color:var(--warn);border:1px solid rgba(237,137,54,.25)}
+.badge-ok{background:rgba(72,187,120,.15);color:var(--success);border:1px solid rgba(72,187,120,.25)}
+.badge-info{background:rgba(99,179,237,.15);color:var(--info);border:1px solid rgba(99,179,237,.25)}
+.mini-table{width:100%;border-collapse:collapse;font-size:.76rem}
+.mini-table th{font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;padding:5px 8px;border-bottom:1px solid var(--border2);text-align:left;white-space:nowrap}
+.mini-table th.sortable{cursor:pointer;user-select:none}
+.mini-table th.sortable:hover{color:var(--accent)}
+.mini-table th.sort-asc::after{content:' ▲';color:var(--accent);font-size:.6rem}
+.mini-table th.sort-desc::after{content:' ▼';color:var(--accent);font-size:.6rem}
+.mini-table td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+.mini-table tr:last-child td{border-bottom:none}
+.mini-table tr:hover td{background:var(--surface2)}
+.mono{font-family:var(--font-mono);font-size:.7rem}
+.pct-cell{display:flex;align-items:center;gap:7px}
+.pct-mini{width:55px;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;flex-shrink:0}
+.pct-mini-fill{height:100%;border-radius:2px}
+.pct-label{font-family:var(--font-mono);font-size:.68rem}
+.tabs{display:flex;gap:4px}
+.tab-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:.76rem;font-weight:600;transition:all .15s}
+.tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pager{display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px}
+.pager-info{font-size:.7rem;color:var(--muted)}
+.pager-btns{display:flex;gap:3px;flex-wrap:wrap}
+.pager-btn{min-width:26px;height:26px;padding:0 7px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.72rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pager-btn:hover:not(:disabled){background:var(--accent);border-color:var(--accent);color:#fff}
+.pager-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.pager-btn:disabled{opacity:.3;cursor:not-allowed}
+.pager-size{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--muted)}
+.pager-size select{padding:2px 7px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.72rem;outline:none}
+.legend{display:flex;flex-wrap:wrap;gap:12px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.legend-line{width:14px;height:3px;border-radius:2px;flex-shrink:0}
+.donut-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.donut-center{position:absolute;text-align:center;pointer-events:none}
+.donut-center .big{font-family:var(--font-mono);font-size:1.35rem;font-weight:700;color:var(--text)}
+.donut-center .small{font-size:.65rem;color:var(--muted)}
+.pill-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.pill{font-size:.68rem;padding:3px 10px;border-radius:20px;font-weight:600;display:flex;align-items:center;gap:4px}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.pulse{animation:pulse 2s infinite}
+.no-data{text-align:center;padding:28px;color:var(--muted);font-size:.8rem}
+/* POPUP */
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);z-index:9999;justify-content:center;align-items:center}
+.popup-overlay.active{display:flex}
+.popup-box{width:96%;max-width:1320px;max-height:92vh;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden}
+.popup-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:12px;flex-wrap:wrap}
+.popup-head h2{font-size:.92rem;font-weight:700}
+.popup-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.popup-close:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+.pfb{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--surface2);flex-shrink:0;align-items:center}
+.pfb label{font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.pfb select{padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:.73rem;outline:none;cursor:pointer;max-width:170px}
+.pfb select:focus{border-color:var(--accent)}
+.psrch{padding:5px 10px 5px 28px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:.75rem;width:175px;outline:none;transition:border-color .2s}
+.psrch:focus{border-color:var(--accent)}
+.psw{position:relative}
+.psw::before{content:'⌕';position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;pointer-events:none}
+.fdiv{width:1px;height:20px;background:var(--border2);flex-shrink:0}
+.btn-rst{padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:.72rem;cursor:pointer;transition:all .15s}
+.btn-rst:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+.popup-body{flex:1;overflow-y:auto;padding:14px 20px}
+.popup-desc{font-size:.78rem;color:var(--muted);margin-bottom:10px;line-height:1.6}
+.popup-actions{display:flex;gap:8px;padding:10px 20px;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.par{display:flex;gap:6px}
+.btn-a{padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.73rem;font-weight:600;transition:all .15s;cursor:pointer}
+.btn-a:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-dl{background:rgba(72,187,120,.12);color:var(--success);border-color:rgba(72,187,120,.3)}
+.btn-dl:hover{background:var(--success)!important;color:#fff!important;border-color:var(--success)!important}
+.btn-cp{background:rgba(99,179,237,.12);color:var(--info);border-color:rgba(99,179,237,.3)}
+.btn-cp:hover{background:var(--info)!important;color:#fff!important;border-color:var(--info)!important}
+.chips{display:flex;flex-wrap:wrap;gap:4px;min-height:14px;margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:rgba(124,106,247,.15);color:var(--accent);border:1px solid rgba(124,106,247,.3);font-size:.68rem;font-weight:600}
+.chip-x{cursor:pointer;opacity:.7;font-size:.8rem;line-height:1}.chip-x:hover{opacity:1}
+
+/* ── OFFICER HEADER (sama seperti Duktek) ── */
+.ohdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.link-btn{font-size:.72rem;color:var(--accent);border:1px solid rgba(124,106,247,.35);background:rgba(124,106,247,.1);padding:4px 11px;border-radius:20px;cursor:pointer;font-weight:600;transition:all .15s;white-space:nowrap}
+.link-btn:hover{background:var(--accent);color:#fff}
+
+.header {
+    background: var(--surface);
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.header > a {
+    flex-shrink: 0;
+}
+
+.header > a img {
+    display: block;
+}
+
+.header-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.header h1 {
+    color: var(--text);
+    font-size: 2em;
+    margin-bottom: 5px;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.header .subtitle {
+    color: var(--muted);
+    font-size: 0.95em;
+    transition: color 0.3s ease;
+    line-height: 1.6;
+}
+
+.header .subtitle small {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    margin-left: 20px;
+}
+
+.update-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--success);
+    border-radius: 50%;
+    margin-left: 8px;
+    animation: pulse-indicator 2s ease-in-out infinite;
+    vertical-align: middle;
+}
+
+.update-indicator.loading {
+    background: var(--warn);
+    animation: pulse-loading 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-indicator {
+    0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.6); }
+    50% { box-shadow: 0 0 0 8px rgba(72, 187, 120, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+}
+
+@keyframes pulse-loading {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.theme-toggle {
+    background: var(--surface2);
+    border: 2px solid var(--border2);
+    width: 60px;
+    height: 32px;
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.05);
+}
+
+.theme-toggle::before {
+    content: '🌙';
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+[data-theme="light"] .theme-toggle::before {
+    content: '☀️';
+    left: calc(100% - 24px);
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: left;
+    gap: 35px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.navigation-buttons .btn {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.navigation-buttons .btn:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 10px;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+    }
+    .header h1 { font-size: 1.5em; }
+    .header .subtitle { font-size: 0.85em; }
+    .header-actions { margin-left: 0; width: 100%; justify-content: space-between; }
+    .search-wrap input { width: 100%; }
+}
+
+/* ── DELTA badge ── */
+.delta-up{color:var(--success)}.delta-dn{color:var(--danger)}.delta-eq{color:var(--muted)}
+
+/* ── highlight sync chart↔table ── */
+.tbl-highlight td{background:rgba(124,106,247,.13)!important;transition:background .15s}
+.tbl-highlight td:first-child{border-left:2px solid var(--accent)}
+
+
+.perf-switch{
+  display:flex;
+  gap:2px;
+  background:rgba(255,255,255,.04);
+  padding:2px;
+  border-radius:2px;
+}
+
+.perf-btn{
+  border:none;
+  background:transparent;
+  color:#aaa;
+  padding:3px 6px;
+  border-radius:2px;
+  cursor:pointer;
+  font-size:12px;
+  transition:.2s;
+}
+
+.perf-btn.active{
+  background:var(--accent);
+  color:#fff;
+  font-weight:600;
+}
+
+.perf-download{
+  border:none;
+  background:transparent;
+  color:#fff;
+  padding:2px 7px;
+  border-radius:2px;
+  cursor:pointer;
+  font-size:8px;
+  font-weight:600;
+  transition:.2s;
+}
+
+.perf-download:hover{
+  opacity:.9;
+}
+
+.download-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.download-box{
+  width:320px;
+  background:var(--surface);
+  border-radius:18px;
+  padding:22px;
+  color:var(--text);
+  border:1px solid var(--border2);
+}
+
+.download-title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:16px;
+}
+
+.download-select{
+  width:100%;
+  padding:10px;
+  border:1px solid var(--border2);
+  border-radius:10px;
+  background:var(--surface2);
+  color:var(--text);
+  margin-bottom:20px;
+}
+
+.download-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+
+.btn-cancel,
+.btn-download{
+  border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.btn-cancel{
+  background:var(--surface2);
+  color:var(--text);
+}
+
+.btn-download{
+  background:var(--accent);
+  color:white;
+}
+
+/* ══════════════════════════════════════════════
+   FOLLOW UP TICKER — antrian tiket berjalan
+   ══════════════════════════════════════════════ */
+.followup-card{padding:16px 20px 8px}
+.followup-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:10px}
+.fu-col{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;display:flex;flex-direction:column}
+.fu-col-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);flex-shrink:0;gap:8px}
+.fu-col-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text)}
+.fu-col-hdr-right{display:flex;align-items:center;gap:6px}
+.fu-col-count{font-family:var(--font-mono);font-size:.68rem;padding:2px 8px;border-radius:20px;font-weight:700}
+.fu-l1 .fu-col-count{background:rgba(237,137,54,.15);color:var(--warn)}
+.fu-l2 .fu-col-count{background:rgba(124,106,247,.15);color:var(--accent)}
+.fu-l3 .fu-col-count{background:rgba(79,209,197,.15);color:var(--accent2)}
+.fu-pause-btn,.fu-copy-btn{width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);color:var(--muted);font-size:.62rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;line-height:1}
+.fu-pause-btn:hover,.fu-copy-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.fu-pause-btn.is-paused{background:var(--accent);color:#fff;border-color:var(--accent)}
+.fu-viewport{height:280px;overflow:hidden;position:relative}
+.fu-viewport.fu-vp-scrollable{overflow-y:auto}
+.fu-viewport::before,.fu-viewport::after{content:'';position:absolute;left:0;right:0;height:16px;z-index:2;pointer-events:none}
+.fu-viewport::before{top:0;background:linear-gradient(to bottom,var(--surface2),transparent)}
+.fu-viewport::after{bottom:0;background:linear-gradient(to top,var(--surface2),transparent)}
+.fu-track{display:flex;flex-direction:column;will-change:transform}
+.fu-row{display:flex;flex-direction:column;gap:3px;padding:6px 12px;border-bottom:1px solid var(--border);min-height:44px;justify-content:center}
+.fu-row-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.fu-row-bottom{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.fu-num{font-family:var(--font-mono);font-size:.72rem;color:var(--accent);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fu-officer{font-size:.68rem;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fu-time{font-size:.62rem;color:var(--muted);font-family:var(--font-mono);white-space:nowrap;flex-shrink:0}
+.fu-chan{font-size:.62rem;font-weight:700;padding:2px 7px 2px 6px;border-radius:20px;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center;gap:3px}
+.fu-chan svg{width:11px;height:11px;flex-shrink:0}
+.fu-chan-whatsapp{background:rgba(72,187,120,.15);color:var(--success)}
+.fu-chan-telegram{background:rgba(99,179,237,.15);color:var(--info)}
+.fu-chan-email{background:rgba(99,179,237,.15);color:var(--info)}
+.fu-chan-telepon,.fu-chan-phone{background:rgba(237,137,54,.15);color:var(--warn)}
+.fu-chan-other{background:rgba(107,107,138,.15);color:var(--muted)}
+.fu-empty{padding:28px;text-align:center;color:var(--muted);font-size:.75rem}
+</style>
+</head>
+<body>
+    <div class="neural-background"></div>
+        <div class="geometric-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+        <div class="neural-lines">
+            <div class="neural-line"></div>
+            <div class="neural-line"></div>
+            <div class="neural-line"></div>
+        </div>
+<div class="shell">
+<div class="header">
+                <a><img src="css/pkimle.png" width="100" height="100" alt="Logo"></a>
+                <div class="header-content">
+                    <h1>CeisMon</h1>
+                    <p class="subtitle">
+                        Real-time Data Monitoring Tiket Ceisa Care<br>
+                        <small id="updateIndicator">Terakhir diupdate: —</small><span class="update-indicator" id="updateDot"></span>
+                    </p>
+                    <div class="navigation-buttons">
+                        <a href="index.html" class="btn">Monitoring Dashboard</a>
+                        <a href="monitoring.html" class="btn">Monitoring Grafik</a>
+                        <a href="server.html" class="btn">Monitoring Server</a>
+                        <a href="tiket.html" class="btn">Monitoring Tiket</a>
+                        <!-- <a href="tools_ops.html" class="btn">Tools Operasional</a> -->
+                        <a href="serda.html" class="btn">Tools Operasional</a>
+                    </div>
+                </div>
+                <div class="header-actions">
+    <div class="search-wrap"><input type="text" id="globalSearch" placeholder="Cari tiket, kantor, petugas…"></div>
+    <div class="theme-toggle" onclick="toggleTheme()"></div>
+  </div>
+            </div>
+<main class="content">
+<div id="errorBanner"></div>
+<div class="kpi-strip">
+  <div class="kpi-card kpi-purple">
+    <div class="kpi-label">Hari Ini — <span id="todayDate" style="font-family:var(--font-mono)">—</span></div>
+    <div class="kpi-val" id="todayTotal">—</div><div class="kpi-sub">tiket masuk</div>
+    <div class="kpi-badge kpi-info">↗ <span id="todayResolved">—</span> selesai</div>
+  </div>
+  <div class="kpi-card kpi-teal">
+    <div class="kpi-label">Kemarin — <span id="yesterdayDate" style="font-family:var(--font-mono)">—</span></div>
+    <div class="kpi-val" id="yesterdayTotal">—</div><div class="kpi-sub">tiket masuk</div>
+    <div class="kpi-badge kpi-ok">✓ <span id="yesterdayResolved">—</span> selesai</div>
+  </div>
+  <div class="kpi-card kpi-blue">
+    <div class="kpi-label">H-2 — <span id="twoDaysAgoDate" style="font-family:var(--font-mono)">—</span></div>
+    <div class="kpi-val" id="twoDaysTotal">—</div><div class="kpi-sub">tiket masuk</div>
+    <div class="kpi-badge kpi-ok">✓ <span id="twoDaysResolved">—</span> selesai</div>
+  </div>
+  <div class="kpi-card kpi-red" style="cursor:pointer" onclick="showPopup()">
+    <div class="kpi-label">Status Submit</div>
+    <div class="kpi-val" id="submitTotal">—</div><div class="kpi-sub">total antrian</div>
+    <div class="kpi-badge kpi-danger">⚡ <span id="submitDaily">—</span> hari ini</div>
+  </div>
+  <div class="kpi-card kpi-orange" style="cursor:pointer" onclick="showLayer1Popup()">
+    <div class="kpi-label">Layer 1 IKC</div>
+    <div class="kpi-val" id="layer01Total">—</div><div class="kpi-sub">total aktif</div>
+    <div class="kpi-badge kpi-warn">▶ <span id="layer1Daily">—</span> hari ini</div>
+  </div>
+  <div class="kpi-card kpi-purple" style="cursor:pointer" onclick="showLayer2Popup()">
+    <div class="kpi-label">Layer 2 PKIMLE</div>
+    <div class="kpi-val" id="layer02Total">—</div><div class="kpi-sub">total aktif</div>
+    <div class="kpi-badge kpi-info">▶ <span id="layer2Daily">—</span> hari ini</div>
+  </div>
+  <div class="kpi-card kpi-green">
+    <div class="kpi-label">Layer 3 IKC</div>
+    <div class="kpi-val" id="layer3PSI">—</div><div class="kpi-sub">PSI</div>
+    <div class="kpi-badge kpi-ok">PLD: <span id="layer3PLD">—</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     FOLLOW UP TIKET — antrian berjalan per layer
+     ══════════════════════════════════════════════ -->
+<div class="card followup-card">
+  <div class="section-hdr">
+    <div class="section-title">Follow Up Tiket (Belum Selesai)</div>
+    <span class="kpi-badge kpi-danger" id="fuTotalBadge">0 tiket</span>
+  </div>
+  <div class="followup-grid">
+    <div class="fu-col fu-l1">
+      <div class="fu-col-hdr"><span class="fu-col-title">Layer 1</span><div class="fu-col-hdr-right"><span class="fu-col-count" id="fuCountL1">0</span><button class="fu-copy-btn" id="fuCopyBtnL1" onclick="fuCopyColumn(1)" title="Copy data Layer 1">📋</button><button class="fu-pause-btn" id="fuPauseBtnL1" onclick="toggleFollowUpPause(1)" title="Jeda / lanjutkan antrian berjalan">⏸</button></div></div>
+      <div class="fu-viewport" id="fuViewportL1"><div class="fu-track" id="fuTrackL1"><div class="fu-empty"><span class="spinner"></span></div></div></div>
+    </div>
+    <div class="fu-col fu-l2">
+      <div class="fu-col-hdr"><span class="fu-col-title">Layer 2</span><div class="fu-col-hdr-right"><span class="fu-col-count" id="fuCountL2">0</span><button class="fu-copy-btn" id="fuCopyBtnL2" onclick="fuCopyColumn(2)" title="Copy data Layer 2">📋</button><button class="fu-pause-btn" id="fuPauseBtnL2" onclick="toggleFollowUpPause(2)" title="Jeda / lanjutkan antrian berjalan">⏸</button></div></div>
+      <div class="fu-viewport" id="fuViewportL2"><div class="fu-track" id="fuTrackL2"><div class="fu-empty"><span class="spinner"></span></div></div></div>
+    </div>
+    <div class="fu-col fu-l3">
+      <div class="fu-col-hdr"><span class="fu-col-title">Layer 3</span><div class="fu-col-hdr-right"><span class="fu-col-count" id="fuCountL3">0</span><button class="fu-copy-btn" id="fuCopyBtnL3" onclick="fuCopyColumn(3)" title="Copy data Layer 3">📋</button><button class="fu-pause-btn" id="fuPauseBtnL3" onclick="toggleFollowUpPause(3)" title="Jeda / lanjutkan antrian berjalan">⏸</button></div></div>
+      <div class="fu-viewport" id="fuViewportL3"><div class="fu-track" id="fuTrackL3"><div class="fu-empty"><span class="spinner"></span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid3">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px;flex-wrap:wrap">
+  
+  <div class="section-title" onclick="showTiketl1Popup()">
+    Performa Kinerja Layer 1 IKC (31 hari)
+  </div>
+
+  <div class="perf-switch">
+    <button class="perf-btn active" data-mode="perf">
+      Performa
+    </button>
+
+    <button class="perf-btn" data-mode="solve">
+      Penyelesaian
+    </button>
+      <button class="perf-download" onclick="openDownloadModal()">⬇</button>
+  </div>
+
+</div>
+    <div class="chart-wrap" style="height:260px"><canvas id="perfLineChart"></canvas></div>
+  </div>
+    <div class="card">
+  <div class="section-hdr"><div class="section-title">Distribusi Status Tiket Aktif</div></div>
+  <div class="donut-wrap" style="height:175px">
+    <canvas id="statusDonut"></canvas>
+    <div class="donut-center" id="donutCenter"><div class="big">—</div><div class="small">total aktif</div></div>
+  </div>
+  <div class="pill-row" id="statusPills"></div>
+  <!-- TAMBAHAN: breakdown kategori per layer -->
+  <div id="statusBreakdown" style="display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+    <div style="font-size:.68rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em" id="breakdownTitle"></div>
+    <div id="breakdownBars" style="display:flex;flex-direction:column;gap:5px"></div>
+  </div>
+</div>
+  <div class="card">
+    <div class="section-hdr"><div class="section-title">Tren 3 Hari Terakhir</div></div>
+    <div id="dailyBars"><div class="no-data"><span class="spinner"></span></div></div>
+    <div style="margin-top:12px"><div class="chart-wrap" style="height:130px"><canvas id="dailyMiniChart"></canvas></div></div>
+  </div>
+</div>
+
+<div class="grid-60-40">
+  <div class="card">
+    <div class="section-hdr"><div class="section-title">Performa Harian L1 IKC — 31 Hari (Terbaru ↑)</div></div>
+    <div style="overflow-x:auto">
+      <table class="mini-table">
+        <thead><tr>
+          <th class="sortable" id="ph-tanggal" onclick="sortPerf('tanggal','text')">Tanggal</th>
+          <th class="sortable" id="ph-total"   onclick="sortPerf('total_tiket','number')">Total</th>
+          <th class="sortable" id="ph-selesai" style="color:#50ff00"  onclick="sortPerf('jumlah_penyelesaian','number')" title="Jumlah tiket yang dilakukan penyelesaian">Diselesaikan</th>
+          <th class="sortable" id="ph-naik"  style="color:#ff7300" onclick="sortPerf('jumlah_dinaikan','number')" title="Jumlah tiket yang dilakukan tindaklanjut atau diteruskan ">Diteruskan</th>
+          <th class="sortable" id="ph-b30"   style="color:var(--success)" onclick="sortPerf('kurang_tiga_menit','number')" title="Jumlah tiket yang diselesaikan dalam &lt;30 menit">&lt;30 Mnt</th>
+          <th class="sortable" id="ph-3060"  style="color:var(--warn)"    onclick="sortPerf('enam_menit','number')"        title="Jumlah tiket yang diselesaikan dalam 30–60 menit">30–60 Mnt</th>
+          <th class="sortable" id="ph-1jam"  style="color:var(--danger)"  onclick="sortPerf('satu_jam','number')"           title="Jumlah tiket yang diselesaikan dalam &gt;1 jam">&gt;1 Jam</th>
+          <th>Rata-rata</th>
+        </tr></thead>
+        <tbody id="perfTableBody"><tr><td colspan="8" class="no-data"><span class="spinner"></span></td></tr></tbody>
+      </table>
+    </div>
+    <div class="pager">
+      <div class="pager-size"><select id="perfPageSize" onchange="ps.perf.sz=+this.value;ps.perf.pg=1;renderPerf()"><option>10</option><option>25</option><option>50</option></select></div>
+      <div style="display:flex;gap:6px;align-items:center"><span class="pager-info" id="perfPageInfo"></span><div class="pager-btns" id="perfPageBtns"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-hdr">
+      <div class="section-title" style="cursor:pointer" onclick="showTiketl0Popup()">Capaian Duktek / PDAD ↗</div>
+      <button class="perf-download" onclick="openDownloadPDADModal()" title="Download Laporan PDAD">⬇</button>
+    </div>
+    <div class="chart-wrap" style="height:195px;margin-bottom:10px"><canvas id="dpaBarChart"></canvas></div>
+    <div style="overflow-x:auto;max-height:210px;overflow-y:auto">
+      <table class="mini-table"><thead><tr><th>Tanggal</th><th>Kantor</th><th>Tiket Masuk</th><th>Tiket Selesai</th><th>Tiket Diteruskan</th></tr></thead>
+      <tbody id="clayer1TableBody"><tr><td colspan="4" class="no-data"><span class="spinner"></span></td></tr></tbody></table>
+    </div>
+  </div>
+    </div>
+
+<div class="grid-40-60">
+  <div class="card">
+    <div class="section-hdr">
+      <div class="section-title">Tiket Urgent Layer 1</div>
+      <span class="kpi-badge kpi-danger pulse" id="urgentCountBadge">0 aktif</span>
+    </div>
+    <div id="urgentList"><div class="no-data"><span class="spinner"></span></div></div>
+    <div class="pager" id="urgentPager" style="display:none">
+      <div class="pager-size">Tampilkan <select id="urgentPageSize" onchange="ps.urgent.sz=+this.value;ps.urgent.pg=1;renderUrgent()"><option>10</option><option>25</option><option>50</option></select></div>
+      <div style="display:flex;align-items:center;gap:6px"><span class="pager-info" id="urgentPageInfo"></span><div class="pager-btns" id="urgentPageBtns"></div></div>
+    </div>
+  </div>
+  <div class="card">
+  <div class="section-hdr">
+    <div class="section-title">Detail Tiket per Layer</div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('layer1')">Layer 1</button>
+      <button class="tab-btn" onclick="switchTab('layer2')">Layer 2</button>
+      <button class="tab-btn" onclick="switchTab('layer3')">Layer 3</button>
+    </div>
+  </div>
+  <div id="layerTableWrap"><div class="no-data"><span class="spinner"></span></div></div>
+  <div class="pager" id="layerPager">
+    <div class="pager-size">Tampilkan <select id="layerPageSize" onchange="layerPgChg()"><option>10</option><option>25</option><option>50</option></select></div>
+    <div style="display:flex;align-items:center;gap:6px"><span class="pager-info" id="layerPageInfo"></span><div class="pager-btns" id="layerPageBtns"></div></div>
+  </div>
+</div>
+
+  <!-- ══════════════════════════════════════════════
+       CAPAIAN PENYELESAIAN LAYER 1
+       ══════════════════════════════════════════════ -->
+  
+</div>
+
+
+
+
+<div class="grid2">
+  <div class="card">
+    <div class="ohdr">
+      <div class="section-title" style="cursor:pointer" onclick="showCapaianPopup()">Capaian Penyelesaian Layer 1 ↗</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot" style="background:rgba(124,106,247,.75)"></span>Hari ini</span>
+        <span class="legend-item"><span class="legend-dot" style="background:rgba(107,107,138,.5)"></span>Kemarin</span>
+      </div>
+    </div>
+    <div class="chart-wrap" style="height:195px;margin-bottom:10px"><canvas id="officerBarChart"></canvas></div>
+    <div style="overflow-x:auto;max-height:210px;overflow-y:auto">
+      <table class="mini-table" id="officerTable">
+        <thead><tr>
+          <th>Petugas</th>
+          <th style="color:rgba(124,106,247,.9)">Hari Ini</th>
+          <th style="color:rgba(107,107,138,.8)">Kemarin</th>
+        </tr></thead>
+        <tbody id="officerTableBody">
+          <tr><td colspan="3" class="no-data"><span class="spinner"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-hdr"><div class="section-title" style="cursor:pointer" onclick="showIkuPopup()">Capaian IKC ↗</div></div>
+    <div class="chart-wrap" style="height:195px;margin-bottom:10px"><canvas id="ikcBarChart"></canvas></div>
+    <div style="overflow-x:auto;max-height:210px;overflow-y:auto">
+      <table class="mini-table"><thead><tr><th>Petugas</th><th>Status</th><th>Hari Ini</th><th>Kemarin</th></tr></thead>
+      <tbody id="clayer2TableBody"><tr><td colspan="4" class="no-data"><span class="spinner"></span></td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+</main>
+
+<!-- POPUP SUBMIT -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box">
+    <div class="popup-head"><h2>Tiket Status Submit — Perlu Tindak Lanjut</h2><button class="popup-close" onclick="closePopup()">×</button></div>
+    <div class="pfb">
+      <div class="psw"><input class="psrch" type="text" id="search-submit" placeholder="Cari…" oninput="onFilter('submit')"></div>
+      <div class="fdiv"></div>
+      <label>Kantor:</label><select id="col-submit-office_name" onchange="onFilter('submit')"><option value="">Semua</option></select>
+      <label>Durasi:</label><select id="col-submit-duration"    onchange="onFilter('submit')"><option value="">Semua</option></select>
+      <div class="fdiv"></div>
+      <label>Urutkan:</label>
+      <select id="sort-submit-col" onchange="onFilter('submit')"><option value="ticket_number">Nomor Tiket</option><option value="office_name">Kantor</option><option value="duration">Durasi</option></select>
+      <select id="sort-submit-dir" onchange="onFilter('submit')"><option value="asc">A→Z</option><option value="desc">Z→A</option></select>
+      <button class="btn-rst" onclick="resetF('submit')">↺ Reset</button>
+    </div>
+    <div class="popup-body">
+      <p class="popup-desc">Mohon petugas Duktek/PDAD/PKCDT segera menindaklanjuti tiket berstatus <strong>SUBMIT</strong>.</p>
+      <div id="chips-submit" class="chips"></div>
+      <div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>Nomor Tiket</th><th>Nama Kantor</th><th>Durasi</th></tr></thead><tbody id="submitTicketsBody"><tr><td colspan="3" class="no-data">Memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="popup-actions"><span class="pager-info" id="info-submit">—</span><div class="par"><button class="btn-a btn-cp" onclick="cpPopup('submit')">📋 Copy</button><button class="btn-a btn-dl" onclick="dlPopup('submit')">⬇ Excel</button></div></div>
+  </div>
+</div>
+
+<!-- POPUP LAYER 1 -->
+<div class="popup-overlay" id="popupLayer1Overlay">
+  <div class="popup-box">
+    <div class="popup-head"><h2>Data TIket Layer 1</h2><button class="popup-close" onclick="closeLayer1Popup()">×</button></div>
+    <div class="pfb">
+      <div class="psw"><input class="psrch" type="text" id="search-layer1p" placeholder="Cari…" oninput="onFilter('layer1p')"></div>
+      <div class="fdiv"></div>
+      <label>Nomor Tiket:</label>  <select id="col-layer1p-ticket_number"      onchange="onFilter('layer1p')"><option value="">Semua</option></select>
+      <label>Nama Petugas:</label><select id="col-layer1p-office_name" onchange="onFilter('layer1p')"><option value="">Semua</option></select>
+      <label>Kategori:</label><select id="col-layer1p-kategori"    onchange="onFilter('layer1p')"><option value="">Semua</option></select>
+      <div class="fdiv"></div>
+      <label>Urutkan:</label>
+      <select id="sort-layer1p-col" onchange="onFilter('layer1p')"><option value="ticket_number">Nomor Tiket</option><option value="office_name">Nama Petugas</option><option value="duration">Durasi</option><option value="kategori">Kategori</option></select>
+      <select id="sort-layer1p-dir" onchange="onFilter('layer1p')"><option value="asc">A→Z</option><option value="desc">Z→A</option></select>
+      <button class="btn-rst" onclick="resetF('layer1p')">↺ Reset</button>
+    </div>
+    <div class="popup-body">
+      <div id="chips-layer1p" class="chips"></div>
+      <div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>Nomor Tiket</th><th>Nama Petugas</th><th>Kategori</th><th>Durasi</th><th>Uraian</th></tr></thead><tbody id="layer1TicketsBody"><tr><td colspan="5" class="no-data">Memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="popup-actions"><span class="pager-info" id="info-layer1p">—</span><div class="par"><button class="btn-a btn-cp" onclick="cpPopup('layer1p')">📋 Copy</button><button class="btn-a btn-dl" onclick="dlPopup('layer1p')">⬇ Excel</button></div></div>
+  </div>
+</div>
+
+<!-- POPUP LAYER 2 -->
+<div class="popup-overlay" id="popupLayer2Overlay">
+  <div class="popup-box">
+    <div class="popup-head"><h2>Tiket Layer 2 PKIMLE</h2><button class="popup-close" onclick="closeLayer2Popup()">×</button></div>
+    <div class="pfb">
+      <div class="psw"><input class="psrch" type="text" id="search-layer2p" placeholder="Cari…" oninput="onFilter('layer2p')"></div>
+      <div class="fdiv"></div>
+      <label>Petugas:</label><select id="col-layer2p-office_name" onchange="onFilter('layer2p')"><option value="">Semua</option></select>
+      <label>Kategori:</label><select id="col-layer2p-kategori"   onchange="onFilter('layer2p')"><option value="">Semua</option></select>
+      <div class="fdiv"></div>
+      <label>Urutkan:</label>
+      <select id="sort-layer2p-col" onchange="onFilter('layer2p')"><option value="ticket_number">Nomor Tiket</option><option value="office_name">Petugas</option><option value="kategori">Kategori</option><option value="duration">Durasi</option></select>
+      <select id="sort-layer2p-dir" onchange="onFilter('layer2p')"><option value="asc">A→Z</option><option value="desc">Z→A</option></select>
+      <button class="btn-rst" onclick="resetF('layer2p')">↺ Reset</button>
+    </div>
+    <div class="popup-body">
+      <p class="popup-desc">Tiket yang masih berada di <strong>Layer 2 PKIMLE</strong>.</p>
+      <div id="chips-layer2p" class="chips"></div>
+      <div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>Nomor Tiket</th><th>Nama Petugas</th><th>Kategori</th><th>Durasi</th><th>Uraian</th></tr></thead><tbody id="layer2TicketsBody"><tr><td colspan="5" class="no-data">Memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="popup-actions"><span class="pager-info" id="info-layer2p">—</span><div class="par"><button class="btn-a btn-cp" onclick="cpPopup('layer2p')">📋 Copy</button><button class="btn-a btn-dl" onclick="dlPopup('layer2p')">⬇ Excel</button></div></div>
+  </div>
+</div>
+
+<!-- POPUP IKU -->
+<div class="popup-overlay" id="popupIkuOverlay">
+  <div class="popup-box">
+    <div class="popup-head"><h2>Data Capaian IKC</h2><button class="popup-close" onclick="closeIkuPopup()">×</button></div>
+    <div class="pfb">
+      <div class="psw"><input class="psrch" type="text" id="search-iku" placeholder="Cari…" oninput="onFilter('iku')"></div>
+      <div class="fdiv"></div>
+      <label>Petugas:</label><select id="col-iku-ticket_number" onchange="onFilter('iku')"><option value="">Semua</option></select>
+      <label>Durasi:</label>  <select id="col-iku-office_name"   onchange="onFilter('iku')"><option value="">Semua</option></select>
+      <label>Bulan:</label>  <select id="col-iku-duration"      onchange="onFilter('iku')"><option value="">Semua</option></select>
+      <label>Periode:</label><select id="col-iku-kategori"      onchange="onFilter('iku')"><option value="">Semua</option></select>
+      <div class="fdiv"></div>
+      <label>Urutkan:</label>
+      <select id="sort-iku-col" onchange="onFilter('iku')"><option value="ticket_number">Petugas</option><option value="office_name">Durasi</option><option value="duration">Bulan</option><option value="kategori">Periode</option><option value="status">Jumlah</option></select>
+      <select id="sort-iku-dir" onchange="onFilter('iku')"><option value="asc">A→Z</option><option value="desc">Z→A</option></select>
+      <button class="btn-rst" onclick="resetF('iku')">↺ Reset</button>
+    </div>
+    <div class="popup-body">
+      <div id="chips-iku" class="chips"></div>
+      <div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>Nama Petugas</th><th>Durasi</th><th>Bulan</th><th>Periode</th><th>Jumlah</th></tr></thead><tbody id="ikuTicketsBody"><tr><td colspan="5" class="no-data">Memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="popup-actions"><span class="pager-info" id="info-iku">—</span><div class="par"><button class="btn-a btn-cp" onclick="cpPopup('iku')">📋 Copy</button><button class="btn-a btn-dl" onclick="dlPopup('iku')">⬇ Excel</button></div></div>
+  </div>
+</div>
+
+<!-- POPUP CAPAIAN -->
+<div class="popup-overlay" id="popupCapaianOverlay">
+  <div class="popup-box">
+    <div class="popup-head"><h2>Data Penyelesaian Tiket</h2><button class="popup-close" onclick="closeCapaianPopup()">×</button></div>
+    <div class="pfb">
+      <div class="psw"><input class="psrch" type="text" id="search-capaian" placeholder="Cari…" oninput="onFilter('capaian')"></div>
+      <div class="fdiv"></div>
+      <label>Petugas:</label><select id="col-capaian-ticket_number" onchange="onFilter('capaian')"><option value="">Semua</option></select>
+      <label>Tahun:</label>  <select id="col-capaian-office_name"   onchange="onFilter('capaian')"><option value="">Semua</option></select>
+      <label>Bulan:</label>  <select id="col-capaian-duration"      onchange="onFilter('capaian')"><option value="">Semua</option></select>
+      <label>Periode:</label><select id="col-capaian-kategori"      onchange="onFilter('capaian')"><option value="">Semua</option></select>
+      <div class="fdiv"></div>
+      <label>Urutkan:</label>
+      <select id="sort-capaian-col" onchange="onFilter('capaian')"><option value="ticket_number">Petugas</option><option value="office_name">Tahun</option><option value="duration">Bulan</option><option value="kategori">Periode</option><option value="status">Jumlah</option></select>
+      <select id="sort-capaian-dir" onchange="onFilter('capaian')"><option value="asc">A→Z</option><option value="desc">Z→A</option></select>
+      <button class="btn-rst" onclick="resetF('capaian')">↺ Reset</button>
+    </div>
+    <div class="popup-body">
+      <div id="chips-capaian" class="chips"></div>
+      <div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>Petugas</th><th>Tahun</th><th>Bulan</th><th>Periode</th><th>Jumlah</th></tr></thead><tbody id="capaianTicketsBody"><tr><td colspan="5" class="no-data">Memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="popup-actions"><span class="pager-info" id="info-capaian">—</span><div class="par"><button class="btn-a btn-cp" onclick="cpPopup('capaian')">📋 Copy</button><button class="btn-a btn-dl" onclick="dlPopup('capaian')">⬇ Excel</button></div></div>
+  </div>
+</div>
+
+<!-- POPUP TIKET L0 -->
+<div class="popup-overlay" id="popupTiketl0Overlay">
+  <div class="popup-box">
+    <div class="popup-head"><h2>Tiket Submit — Duktek/PDAD</h2><button class="popup-close" onclick="closeTiketl0Popup()">×</button></div>
+    <div class="pfb">
+      <div class="psw"><input class="psrch" type="text" id="search-tiketl0" placeholder="Cari…" oninput="onFilter('tiketl0')"></div>
+      <div class="fdiv"></div>
+      <label>Kantor:</label>  <select id="col-tiketl0-office_name" onchange="onFilter('tiketl0')"><option value="">Semua</option></select>
+      <label>Kategori:</label><select id="col-tiketl0-kategori"    onchange="onFilter('tiketl0')"><option value="">Semua</option></select>
+      <div class="fdiv"></div>
+      <label>Urutkan:</label>
+      <select id="sort-tiketl0-col" onchange="onFilter('tiketl0')"><option value="ticket_number">Nomor Tiket</option><option value="office_name">Kantor</option><option value="kategori">Kategori</option><option value="duration">Durasi</option></select>
+      <select id="sort-tiketl0-dir" onchange="onFilter('tiketl0')"><option value="asc">A→Z</option><option value="desc">Z→A</option></select>
+      <button class="btn-rst" onclick="resetF('tiketl0')">↺ Reset</button>
+    </div>
+    <div class="popup-body">
+      <div id="chips-tiketl0" class="chips"></div>
+      <div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>Nomor Tiket</th><th>Kantor</th><th>Kategori</th><th>Durasi</th><th>Uraian</th></tr></thead><tbody id="tiketl0TicketsBody"><tr><td colspan="5" class="no-data">Memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="popup-actions"><span class="pager-info" id="info-tiketl0">—</span><div class="par"><button class="btn-a btn-cp" onclick="cpPopup('tiketl0')">📋 Copy</button><button class="btn-a btn-dl" onclick="dlPopup('tiketl0')">⬇ Excel</button></div></div>
+  </div>
+</div>
+
+<!-- POPUP TIKET L1 -->
+<div class="popup-overlay" id="popupTiketl1Overlay">
+  <div class="popup-box">
+    <div class="popup-head"><h2>Detail Capaian Penyelesaian Tiket Layer 1</h2><button class="popup-close" onclick="closeTiketl1Popup()">×</button></div>
+    <div class="pfb">
+      <div class="psw"><input class="psrch" type="text" id="search-tiketl1" placeholder="Cari…" oninput="onFilter('tiketl1')"></div>
+      <div class="fdiv"></div>
+      <label>Nama Petugas:</label><select id="col-tiketl1-office_name" onchange="onFilter('tiketl1')"><option value="">Semua</option></select>
+      <label>Kategori:</label><select id="col-tiketl1-kategori"   onchange="onFilter('tiketl1')"><option value="">Semua</option></select>
+      <div class="fdiv"></div>
+      <label>Urutkan:</label>
+      <select id="sort-tiketl1-col" onchange="onFilter('tiketl1')"><option value="ticket_number">Nomor Tiket</option><option value="office_name">Nama Petugas</option><option value="kategori">Kategori</option><option value="duration">Tanggal</option></select>
+      <select id="sort-tiketl1-dir" onchange="onFilter('tiketl1')"><option value="asc">A→Z</option><option value="desc">Z→A</option></select>
+      <button class="btn-rst" onclick="resetF('tiketl1')">↺ Reset</button>
+    </div>
+    <div class="popup-body">
+      <div id="chips-tiketl1" class="chips"></div>
+      <div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>Nomor Tiket</th><th>Nama Petugas</th><th>Kategori</th><th>Tanggal</th><th>Keterangan</th></tr></thead><tbody id="tiketl1TicketsBody"><tr><td colspan="5" class="no-data">Memuat…</td></tr></tbody></table></div>
+    </div>
+    <div class="popup-actions"><span class="pager-info" id="info-tiketl1">—</span><div class="par"><button class="btn-a btn-cp" onclick="cpPopup('tiketl1')">📋 Copy</button><button class="btn-a btn-dl" onclick="dlPopup('tiketl1')">⬇ Excel</button></div></div>
+  </div>
+</div>
+
+</div>
+    
+    
+
+<!-- =========================================================
+     MODAL DOWNLOAD PDAD (terpisah dari modal Performa L1 IKC)
+========================================================= -->
+<div id="downloadPDADModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+  <!-- Hidden alias elements agar tiket_1.js tidak error saat cari id ini -->
+  <select id="downloadKantor" style="display:none"></select>
+  <div style="width:480px;max-width:95%;background:var(--surface);border-radius:16px;padding:24px;border:1px solid var(--border2);color:var(--text);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-size:17px;font-weight:700;">Download Laporan PDAD</div>
+      <button onclick="closeDownloadPDADModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:.75rem;color:var(--muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Kantor</label>
+      <div
+  id="pdadDownloadKantor"
+  style="
+    width:100%;
+    max-height:220px;
+    overflow:auto;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid var(--border2);
+    background:var(--surface2);
+    color:var(--text);
+    font-size:.82rem;
+  "
+></div>
+
+<div style="font-size:11px;color:var(--muted);margin-top:4px;">
+  Bisa pilih lebih dari satu kantor
+</div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:.75rem;color:var(--muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Rentang Tanggal</label>
+      <select id="pdadDownloadRange" onchange="togglePDADCustomRange()" style="width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.82rem;outline:none;">
+        <option value="1">Hari Ini</option>
+        <option value="7">7 Hari</option>
+        <option value="31" selected>31 Hari</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+    <div id="pdadCustomDateWrap" style="display:none;margin-bottom:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="display:block;font-size:.75rem;color:var(--muted);margin-bottom:5px;">Dari</label>
+          <input type="date" id="pdadCustomStart" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.8rem;outline:none;">
+        </div>
+        <div>
+          <label style="display:block;font-size:.75rem;color:var(--muted);margin-bottom:5px;">Sampai</label>
+          <input type="date" id="pdadCustomEnd" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.8rem;outline:none;">
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:.75rem;color:var(--muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Format</label>
+      <select id="pdadDownloadFormat" style="width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:.82rem;outline:none;">
+        <option value="excel">Excel (.xlsx)</option>
+        <option value="pdf">PDF</option>
+      </select>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeDownloadPDADModal()" style="padding:9px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:.82rem;cursor:pointer;">Batal</button>
+      <button onclick="downloadPDADReport()" style="padding:9px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:.82rem;font-weight:600;cursor:pointer;">Download</button>
+    </div>
+  </div>
+</div>
+
+    <div id="downloadModal" class="download-modal">
+
+  <div class="download-box">
+
+    <div class="download-title">
+      Download Analytics
+    </div>
+
+    <div style="margin-bottom:14px">
+
+      <div style="
+        font-size:12px;
+        color:#94a3b8;
+        margin-bottom:6px;
+      ">
+        Range Data
+      </div>
+
+      <select
+        id="downloadRange"
+        class="download-select"
+        onchange="toggleCustomRange()"
+      >
+        <option value="7">
+          7 Hari
+        </option>
+
+        <option value="14">
+          14 Hari
+        </option>
+
+        <option value="31" selected>
+          31 Hari
+        </option>
+
+        <option value="custom">
+          Custom Tanggal
+        </option>
+
+      </select>
+
+    </div>
+
+    <div
+      id="customDateWrap"
+      style="
+        display:none;
+        margin-top:14px;
+      "
+    >
+
+      <div style="margin-bottom:12px">
+
+        <div style="
+          font-size:12px;
+          color:#94a3b8;
+          margin-bottom:6px;
+        ">
+          Tanggal Awal
+        </div>
+
+        <input
+          type="date"
+          id="startDate"
+          class="download-select"
+        >
+
+      </div>
+
+      <div>
+
+        <div style="
+          font-size:12px;
+          color:#94a3b8;
+          margin-bottom:6px;
+        ">
+          Tanggal Akhir
+        </div>
+
+        <input
+          type="date"
+          id="endDate"
+          class="download-select"
+        >
+
+      </div>
+
+    </div>
+
+<!--    <div style="margin-top:14px">
+
+      <div style="
+        font-size:12px;
+        color:#94a3b8;
+        margin-bottom:6px;
+      ">
+        Kategori Grafik
+      </div>
+
+      <select
+        id="downloadType"
+        class="download-select"
+      >
+
+        <option value="perf">
+          Performa
+        </option>
+
+        <option value="solve">
+          Penyelesaian
+        </option>
+
+      </select>
+
+    </div>-->
+
+    <div class="download-actions">
+
+      <button
+        class="btn-cancel"
+        onclick="closeDownloadModal()"
+      >
+        Batal
+      </button>
+
+      <button
+        class="btn-download"
+        onclick="submitDownloadPerf()"
+      >
+        Download
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+    
+    
+<script>
+const API_BASE=window.location.origin+'/api/tickets';
+const REFRESH_MS=60000;
+const ps={urgent:{pg:1,sz:10,all:[],fil:[]},layer1:{pg:1,sz:10,all:[],fil:[],sc:null,sd:'asc'},layer2:{pg:1,sz:10,all:[],fil:[],sc:null,sd:'asc'},layer3:{pg:1,sz:10,all:[],fil:[],sc:null,sd:'asc'},perf:{pg:1,sz:10,all:[],fil:[],sc:null,sd:'asc'}};
+const PC={
+  submit:{oid:'popupOverlay',bid:'submitTicketsBody',iid:'info-submit',sid:'search-submit',scolid:'sort-submit-col',sdirid:'sort-submit-dir',chid:'chips-submit',cols:['ticket_number','office_name','duration'],heads:['Nomor Tiket','Nama Kantor','Durasi'],mono:[0],fc:[{fid:'office_name',dk:'office_name',lbl:'Kantor'},{fid:'duration',dk:'duration',lbl:'Durasi'}]},
+  layer1p:{oid:'popupLayer1Overlay',bid:'layer1TicketsBody',iid:'info-layer1p',sid:'search-layer1p',scolid:'sort-layer1p-col',sdirid:'sort-layer1p-dir',chid:'chips-layer1p',cols:['ticket_number','office_name','kategori','duration','status'],heads:['Nomor Tiket','Nama Petugas','Kategori','Durasi','Uraian'],mono:[0],fc:[{fid:'ticket_number',dk:'ticket_number',lbl:'Ticket_number'},{fid:'office_name',dk:'office_name',lbl:'Petugas'},{fid:'duration',dk:'duration',lbl:'Duration'},{fid:'kategori',dk:'kategori',lbl:'Kategori'}]},
+  layer2p:{oid:'popupLayer2Overlay',bid:'layer2TicketsBody',iid:'info-layer2p',sid:'search-layer2p',scolid:'sort-layer2p-col',sdirid:'sort-layer2p-dir',chid:'chips-layer2p',cols:['ticket_number','office_name','kategori','duration','status'],heads:['Nomor Tiket','Nama Petugas','Kategori','Durasi','Uraian'],mono:[0],fc:[{fid:'office_name',dk:'office_name',lbl:'Petugas'},{fid:'kategori',dk:'kategori',lbl:'Kategori'}]},
+  iku:{oid:'popupIkuOverlay',bid:'ikuTicketsBody',iid:'info-iku',sid:'search-iku',scolid:'sort-iku-col',sdirid:'sort-iku-dir',chid:'chips-iku',cols:['ticket_number','office_name','duration','kategori','status'],heads:['Nama Petugas','Tahun','Bulan','Periode','Jumlah'],mono:[4],fc:[{fid:'ticket_number',dk:'ticket_number',lbl:'Petugas'},{fid:'office_name',dk:'office_name',lbl:'Tahun'},{fid:'duration',dk:'duration',lbl:'Bulan'},{fid:'kategori',dk:'kategori',lbl:'Periode'}]},
+  capaian:{oid:'popupCapaianOverlay',bid:'capaianTicketsBody',iid:'info-capaian',sid:'search-capaian',scolid:'sort-capaian-col',sdirid:'sort-capaian-dir',chid:'chips-capaian',cols:['ticket_number','office_name','duration','kategori','status'],heads:['Petugas','Tahun','Bulan','Periode','Jumlah'],mono:[4],fc:[{fid:'ticket_number',dk:'ticket_number',lbl:'Petugas'},{fid:'office_name',dk:'office_name',lbl:'Tahun'},{fid:'duration',dk:'duration',lbl:'Bulan'},{fid:'kategori',dk:'kategori',lbl:'Periode'}]},
+  tiketl0:{oid:'popupTiketl0Overlay',bid:'tiketl0TicketsBody',iid:'info-tiketl0',sid:'search-tiketl0',scolid:'sort-tiketl0-col',sdirid:'sort-tiketl0-dir',chid:'chips-tiketl0',cols:['ticket_number','office_name','kategori','duration','status'],heads:['Nomor Tiket','Kantor','Kategori','Durasi','Uraian'],mono:[0],fc:[{fid:'office_name',dk:'office_name',lbl:'Kantor'},{fid:'kategori',dk:'kategori',lbl:'Kategori'}]},
+  tiketl1:{oid:'popupTiketl1Overlay',bid:'tiketl1TicketsBody',iid:'info-tiketl1',sid:'search-tiketl1',scolid:'sort-tiketl1-col',sdirid:'sort-tiketl1-dir',chid:'chips-tiketl1',cols:['ticket_number','office_name','kategori','duration','status'],heads:['Nomor Tiket','Petugas','Kategori','Tanggal','Keterangan'],mono:[0],fc:[{fid:'office_name',dk:'office_name',lbl:'Petugas'},{fid:'kategori',dk:'kategori',lbl:'Kategori'}]},
+};
+const pp={};Object.keys(PC).forEach(k=>{pp[k]={all:[],fil:[],af:{}};});
+let activeLayer='layer1',refreshTimer=null;
+let CHART={perf:null,officer:null,dm:null,donut:null,dpa:null,ikc:null};
+let capaianTicketsData=null,ikuTicketsData=null;
+
+document.addEventListener('DOMContentLoaded',()=>{loadTheme();updateDates();setupSearch();loadAll();startRefresh();initFollowUp();});
+
+function toggleTheme(){const n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n);if(ps.perf.all.length)renderPerfChart([...ps.perf.all].reverse());syncHeaderHeight();}
+function loadTheme(){const s=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',s);}
+function syncHeaderHeight(){const h=document.querySelector('.header');if(!h)return;requestAnimationFrame(()=>{document.documentElement.style.setProperty('--header-height',(h.offsetHeight+30)+'px');});}
+window.addEventListener('load',syncHeaderHeight);
+window.addEventListener('resize',syncHeaderHeight);
+const DAYS=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+function fmtDate(d){return`${DAYS[d.getDay()]}, ${p2(d.getDate())}-${p2(d.getMonth()+1)}-${d.getFullYear()}`}
+function p2(n){return String(n).padStart(2,'0')}
+function updateDates(){const t=new Date(),y=new Date(t),tw=new Date(t);y.setDate(t.getDate()-1);tw.setDate(t.getDate()-2);setText('todayDate',fmtDate(t));setText('yesterdayDate',fmtDate(y));setText('twoDaysAgoDate',fmtDate(tw));}
+
+async function loadAll(){
+  document.getElementById('updateDot')?.classList.add('loading');
+  try{
+    const r=await fetch(`${API_BASE}?action=all&t=${Date.now()}`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(d.success===false)throw new Error(d.error||'Unknown');
+    processData(d);
+    document.getElementById('errorBanner').innerHTML='';
+  }catch(e){
+    console.error(e);
+    document.getElementById('errorBanner').innerHTML=`<div style="background:rgba(245,101,101,.1);border:1px solid var(--danger);border-radius:var(--radius);padding:12px 18px;margin-bottom:14px;color:var(--danger);font-size:.8rem;">⚠ Gagal memuat: ${e.message}</div>`;
+  }finally{updateIndicator();}
+}
+
+function processData(d){
+  if(d.stats)updateStats(d.stats);
+  if(d.urgent)initUrgent(d.urgent);
+  if(d.resolved)initOfficers(d.resolved);
+  if(d.urgent){ ps.layer1.all=[...(d.urgent.tickets||[])]; }
+  if(d.layer2){ ps.layer2.all=[...(d.layer2.tickets||[])]; }
+  if(d.layer3){ ps.layer3.all=[...(d.layer3.tickets||[])]; }
+  applyMainFilter();
+  window._rawClayer1=[...(d.clayer1?.tickets||[])];
+  window._rawClayer2=[...(d.clayer2?.tickets||[])];
+  if(d.clayer1)initClayer1({tickets:window._rawClayer1});
+  if(d.clayer2)initClayer2({tickets:window._rawClayer2});
+  if(d.perf)initPerf(d.perf);
+  capaianTicketsData=d.capaian;ikuTicketsData=d.iku;
+  pp.submit.all=[...(d.submit?.tickets||[])];
+  pp.layer1p.all=[...(d.layer1?.tickets||[])];
+  pp.layer2p.all=[...(d.laporan?.tickets||[])];
+  pp.iku.all=[...(d.iku?.tickets||[])];
+  pp.capaian.all=[...(d.capaian?.tickets||[])];
+  pp.tiketl0.all=[...(d.tiketl0?.tickets||[])];
+  pp.tiketl1.all=[...(d.tiketl1?.tickets||[])];
+  Object.keys(pp).forEach(k=>{pp[k].fil=[...pp[k].all];pp[k].af={};});
+  buildDonut(d);renderLayerTable();
+}
+
+function updateStats(s){
+  if(s.daily&&s.daily.length>=3){
+    const[d0,d1,d2]=s.daily;
+    setText('todayTotal',d0.total_masuk||0);setText('todayResolved',d0.total_selesai||0);
+    setText('yesterdayTotal',d1.total_masuk||0);setText('yesterdayResolved',d1.total_selesai||0);
+    setText('twoDaysTotal',d2.total_masuk||0);setText('twoDaysResolved',d2.total_selesai||0);
+    renderDailyBars(s.daily);renderDailyMini(s.daily);
+  }
+  if(s.status){
+    const g=(k1,k2)=>s.status[k1]||s.status[k2]||{};
+    const sub=g('Submit','SUBMIT'),l1=g('Layer1','LAYER1'),l2=g('Layer2','LAYER2'),l3p=g('Layer3_PSI','LAYER3_PSI'),l3l=g('Layer3_PLD','LAYER3_PLD');
+    setText('submitDaily',sub.harian||0);setText('submitTotal',sub.total||0);
+    setText('layer1Daily',l1.harian||0);setText('layer01Total',l1.total||0);
+    setText('layer2Daily',l2.harian||0);setText('layer02Total',l2.total||0);
+    setText('layer3PSI',l3p.total||0);setText('layer3PLD',l3l.total||0);
+  }
+}
+
+function renderDailyBars(daily){
+  const max=Math.max(...daily.slice(0,3).map(d=>+(d.total_masuk||0)),1);
+  const lb=['Hari ini','Kemarin','H-2'];
+  document.getElementById('dailyBars').innerHTML=daily.slice(0,3).map((d,i)=>{
+    const m=+(d.total_masuk||0),s=+(d.total_selesai||0);
+    return`<div class="daily-row"><span class="daily-label">${lb[i]}</span><div class="daily-bars"><div class="bar-track"><div class="bar-fill masuk" style="width:${Math.round(m/max*100)}%"></div></div><div class="bar-track"><div class="bar-fill selesai" style="width:${Math.round(s/max*100)}%"></div></div></div><div class="daily-nums"><div class="n1">${m.toLocaleString()}</div><div class="n2">${s.toLocaleString()}</div></div></div>`;
+  }).join('');
+}
+function renderDailyMini(daily){
+  const ctx=document.getElementById('dailyMiniChart');if(!ctx)return;
+  if(CHART.dm){CHART.dm.destroy();CHART.dm=null;}
+  CHART.dm=new Chart(ctx,{type:'bar',data:{labels:['H-2','Kemarin','Hari ini'],datasets:[
+    {label:'Masuk',  data:[daily[2],daily[1],daily[0]].map(d=>+(d.total_masuk||0)),  backgroundColor:'rgba(124,106,247,.65)',borderRadius:4,borderSkipped:false},
+    {label:'Selesai',data:[daily[2],daily[1],daily[0]].map(d=>+(d.total_selesai||0)),backgroundColor:'rgba(79,209,197,.65)', borderRadius:4,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index'}},scales:{x:{grid:{display:false},ticks:{color:'#a0aec0',font:{size:10}}},y:{grid:{color:'rgba(128,128,128,.06)'},ticks:{color:'#a0aec0',font:{size:10}}}}}});
+}
+
+function initUrgent(data){
+  ps.urgent.all=ps.urgent.fil=[...(data.tickets||[])];
+  document.getElementById('urgentCountBadge').textContent=`${ps.urgent.all.length} aktif`;
+  if(ps.urgent.all.length)document.getElementById('urgentPager').style.display='flex';
+  renderUrgent();
+}
+function renderUrgent(){
+  const{fil,pg,sz}=ps.urgent;const st=(pg-1)*sz,en=Math.min(st+sz,fil.length),page=fil.slice(st,en);
+  if(!page.length){document.getElementById('urgentList').innerHTML='<div class="no-data">Tidak ada tiket urgent</div>';return;}
+  document.getElementById('urgentList').innerHTML=page.map(t=>{
+    const k=(t.kategori||'').toLowerCase();const cls=k.includes('diatas')||k.includes('1 jam')?'danger':k.includes('30')&&k.includes('60')?'warn':'ok';
+    return`<div class="urgent-item"><div class="urgent-dot ${cls}"></div><div class="urgent-body"><div class="urgent-id">${esc(t.ticket_number)}</div><div class="urgent-meta">${esc(t.office_name)} · ${esc(t.duration)}</div></div><span class="badge badge-${cls}">${esc(t.status)}</span></div>`;
+  }).join('');
+  setText('urgentPageInfo',`${st+1}–${en} / ${fil.length}`);renderPgBtns('urgentPageBtns',pg,Math.ceil(fil.length/sz),'urgent');
+}
+
+/* ══════════════════════════════════════════════════════
+   initOfficers — horizontal bar + mini table, sinkron dua arah
+   ══════════════════════════════════════════════════════ */
+let officersAll=[];
+function initOfficers(data){
+  if(!data?.officers)return;
+  officersAll=[...data.officers];
+  renderOfficers();
+}
+function renderOfficers(){
+  const qL=(document.getElementById('globalSearch')?.value||'').toLowerCase().trim();
+  const filtered=qL?officersAll.filter(o=>Object.values(o).some(v=>(v||'').toString().toLowerCase().includes(qL))):officersAll;
+
+  const officers=[...filtered].sort((a,b)=>(b.today||0)-(a.today||0));
+  const top10=officers.slice(0,10);
+
+  // ── render tabel DULU (semua officer, scroll) ──
+  const tbody=document.getElementById('officerTableBody');
+  if(tbody){
+    if(!officers.length){tbody.innerHTML='<tr><td colspan="3" class="no-data">Tidak ada data</td></tr>';}
+    else{
+      tbody.innerHTML = officers.map((o,i)=>{
+  const today = o.today || 0;
+  const yesterday = o.yesterday || 0;
+
+  const diff = today - yesterday;
+  const color =
+    diff > 0 ? 'var(--success)' :
+    diff < 0 ? 'var(--danger)' :
+    'var(--muted)';
+
+  return `
+    <tr data-idx="${i}">
+      <td>${esc(o.name)}</td>
+      <td class="mono" style="color:${color};font-weight:600">${today}</td>
+      <td class="mono">${yesterday}</td>
+    </tr>
+  `;
+}).join('');
+    }
+  }
+
+  // ── BAR CHART HORIZONTAL (indexAxis:'y') ──
+  const ctx=document.getElementById('officerBarChart');
+  if(!ctx)return;
+  if(CHART.officer){CHART.officer.destroy();CHART.officer=null;}
+  hideBarTooltipHTML('officer-bar-tip');
+
+  CHART.officer=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:top10.map(o=>o.name),
+      datasets:[
+        {label:'Hari Ini', data:top10.map(o=>o.today||0),    backgroundColor:'rgba(124,106,247,.75)',hoverBackgroundColor:'rgba(124,106,247,1)',   borderRadius:3,borderSkipped:false},
+        {label:'Kemarin',  data:top10.map(o=>o.yesterday||0),backgroundColor:'rgba(107,107,138,.35)',hoverBackgroundColor:'rgba(107,107,138,.7)',   borderRadius:3,borderSkipped:false}
+      ]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{enabled:false} // diganti tooltip HTML kustom (lihat onHover) — posisi bawaan Chart.js bisa meleset
+      },
+      scales:{
+        x:{grid:{color:'rgba(128,128,128,.06)'},ticks:{color:'#a0aec0',font:{size:10}}},
+        y:{grid:{display:false},ticks:{color:'#a0aec0',font:{size:9}}}
+      },
+      onHover:(evt,active)=>{
+        // chart hover → highlight baris tabel yang sesuai + tampilkan tooltip HTML presisi
+        const rows=document.querySelectorAll('#officerTableBody tr');
+        rows.forEach(r=>r.classList.remove('tbl-highlight'));
+        if(active.length){
+          const idx=active[0].index;
+          const row=document.querySelector(`#officerTableBody tr[data-idx="${idx}"]`);
+          if(row){row.classList.add('tbl-highlight');row.scrollIntoView({block:'nearest'});}
+          const o=top10[idx];
+          const pos=barElementClientPos(CHART.officer,active[0].datasetIndex,idx);
+          if(o&&pos)showBarTooltipHTML('officer-bar-tip',[
+            {text:o.name,head:true},
+            {text:`Hari Ini: ${o.today||0}`,color:'rgba(124,106,247,.95)'},
+            {text:`Kemarin: ${o.yesterday||0}`,color:'rgba(107,107,138,.85)'}
+          ],pos.x,pos.y);
+        }else{
+          hideBarTooltipHTML('officer-bar-tip');
+        }
+      }
+    }
+  });
+
+  // ── tabel hover → highlight bar di chart ──
+  if(tbody){
+    tbody.querySelectorAll('tr[data-idx]').forEach(row=>{
+      const i=+row.dataset.idx;
+      row.addEventListener('mouseenter',()=>{
+        if(i<top10.length&&CHART.officer){
+          // paksa active element di chart (untuk warna hover bar saja, bukan posisi tooltip)
+          CHART.officer.setActiveElements([{datasetIndex:0,index:i},{datasetIndex:1,index:i}]);
+          CHART.officer.update('none');
+          const o=top10[i];
+          const pos=barElementClientPos(CHART.officer,0,i);
+          if(o&&pos)showBarTooltipHTML('officer-bar-tip',[
+            {text:o.name,head:true},
+            {text:`Hari Ini: ${o.today||0}`,color:'rgba(124,106,247,.95)'},
+            {text:`Kemarin: ${o.yesterday||0}`,color:'rgba(107,107,138,.85)'}
+          ],pos.x,pos.y);
+        }
+        tbody.querySelectorAll('tr').forEach(r=>r.classList.remove('tbl-highlight'));
+        row.classList.add('tbl-highlight');
+      });
+      row.addEventListener('mouseleave',()=>{
+        row.classList.remove('tbl-highlight');
+        if(CHART.officer){CHART.officer.setActiveElements([]);CHART.officer.update('none');}
+        hideBarTooltipHTML('officer-bar-tip');
+      });
+    });
+  }
+}
+
+function switchTab(layer){activeLayer=layer;document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['layer1','layer2','layer3'][i]===layer));ps[layer].pg=1;renderLayerTable();}
+const lCols={layer1:['ticket_number','office_name','duration'],layer2:['ticket_number','officer_name','duration'],layer3:['ticket_number','officer_name','status','duration']};
+const lHeads={layer1:['Nomor Tiket','Petugas','Durasi'],layer2:['Nomor Tiket','Petugas','Durasi'],layer3:['Nomor Tiket','Petugas','Status','Durasi']};
+function renderLayerTable(){
+  const s=ps[activeLayer];
+  if(!s.fil.length){document.getElementById('layerTableWrap').innerHTML='<div class="no-data">Tidak ada data</div>';return;}
+  const cols=lCols[activeLayer],heads=lHeads[activeLayer];
+  const st=(s.pg-1)*s.sz,en=Math.min(st+s.sz,s.fil.length),page=s.fil.slice(st,en);
+  const thHtml=heads.map((h,i)=>{const col=cols[i];const sc=s.sc===col?' sort-'+s.sd:'';return`<th class="sortable${sc}" onclick="sortLayer('${col}')">${h}</th>`;}).join('');
+  const rowHtml=page.map(t=>`<tr>${cols.map(c=>`<td class="${c==='ticket_number'?'mono':''}">${esc(t[c]||'-')}</td>`).join('')}</tr>`).join('');
+  document.getElementById('layerTableWrap').innerHTML=`<div style="overflow-x:auto"><table class="mini-table"><thead><tr>${thHtml}</tr></thead><tbody>${rowHtml}</tbody></table></div>`;
+  setText('layerPageInfo',`${st+1}–${en} / ${s.fil.length}`);
+  renderPgBtns('layerPageBtns',s.pg,Math.ceil(s.fil.length/s.sz),activeLayer);
+}
+function sortLayer(col){
+  const s=ps[activeLayer];
+  if(s.sc===col)s.sd=s.sd==='asc'?'desc':'asc';else{s.sc=col;s.sd='asc';}
+  s.fil=[...s.fil].sort((a,b)=>{const av=(a[col]||'').toString(),bv=(b[col]||'').toString();return s.sd==='asc'?av.localeCompare(bv,undefined,{numeric:true}):bv.localeCompare(av,undefined,{numeric:true});});
+  s.pg=1;renderLayerTable();
+}
+function layerPgChg(){const sz=+document.getElementById('layerPageSize').value;ps[activeLayer].sz=sz;ps[activeLayer].pg=1;renderLayerTable();}
+
+function initPerf(data){
+  const raw=[...(data.tickets||[])].slice(0,31);
+  ps.perf.all=raw;ps.perf.fil=[...raw];ps.perf.sc=null;ps.perf.sd='asc';
+  renderPerfChart([...raw].reverse());renderPerf();
+}
+function renderPerf(){
+  const{fil,pg,sz}=ps.perf;
+  const st=(pg-1)*sz,en=Math.min(st+sz,fil.length),page=fil.slice(st,en);
+  if(!page.length){document.getElementById('perfTableBody').innerHTML='<tr><td colspan="8" class="no-data">Tidak ada data</td></tr>';return;}
+  document.getElementById('perfTableBody').innerHTML=page.map(t=>{
+    const tot=sn(t.total_tiket);const selesai=sn(t.jumlah_penyelesaian);const naik=sn(t.jumlah_dinaikan);const b30=sn(t.kurang_tiga_menit);const mid=sn(t.enam_menit);const jam=sn(t.satu_jam);
+    const pct=(v)=>tot>0?` <span style="opacity:.55;font-size:.62rem">(${(v/tot*100).toFixed(2)}%)</span>`:'';
+    const fmt=(v)=>v===0?'0':(v%1===0?v.toLocaleString('id-ID'):v.toLocaleString('id-ID',{maximumFractionDigits:1}));
+    return `<tr><td class="mono">${esc(t.tanggal || '-')}</td><td class="mono" style="font-weight:700">${tot.toLocaleString('id-ID')}</td><td class="mono" style="color:#50ff00">${esc(t.jumlah_penyelesaian || '0')}</td><td class="mono" style="color:#ff7300">${esc(t.jumlah_dinaikan || '0')}</td><td class="mono" style="color:var(--success)">${esc(t.kurang_tiga_menit || '0')}</td> <td class="mono" style="color:var(--warn)">${esc(t['enam_menit'] || '0')}</td><td class="mono" style="color:var(--danger)">${esc(t.satu_jam || '0')} </td> <td class="mono">${esc(t.rata_rata_durasi || '-')}</td></tr>`;  
+    }).join('');
+    setText('perfPageInfo',`${st+1}–${en} / ${fil.length}`);renderPgBtns('perfPageBtns',pg,Math.ceil(fil.length/sz),'perf');}
+function sortPerf(col,type){
+  const s=ps.perf;
+  ['ph-tanggal','ph-total','ph-selesai','ph-naik','ph-b30','ph-3060','ph-1jam'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('sort-asc','sort-desc');});
+  if(s.sc===col)s.sd=s.sd==='asc'?'desc':'asc';else{s.sc=col;s.sd='asc';}
+  const cm={tanggal:'ph-tanggal',total_tiket:'ph-total',jumlah_penyelesaian:'ph-selesai',jumlah_dinaikan:'ph-naik',kurang_tiga_menit:'ph-b30',enam_menit:'ph-3060',satu_jam:'ph-1jam'};
+  const he=document.getElementById(cm[col]);if(he)he.classList.add('sort-'+s.sd);
+  s.fil=[...s.fil].sort((a,b)=>{if(type==='number')return s.sd==='asc'?sn(a[col])-sn(b[col]):sn(b[col])-sn(a[col]);const av=(a[col]||'').toString(),bv=(b[col]||'').toString();return s.sd==='asc'?av.localeCompare(bv,undefined,{numeric:true}):bv.localeCompare(av,undefined,{numeric:true});});
+  s.pg=1;renderPerf();
+}
+
+
+
+let PERF_MODE='perf';
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.perf-btn');
+  if(!btn) return;
+  document.querySelectorAll('.perf-btn')
+    .forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  PERF_MODE=btn.dataset.mode;
+  renderPerfChart(window.rawPerfData || []);
+});
+
+function renderPerfChart(raw){
+  window.rawPerfData=raw;
+  const ctx=document.getElementById('perfLineChart');
+  if(!ctx || !raw.length) return;
+  if(CHART.perf){
+    CHART.perf.destroy();
+    CHART.perf=null;
+  }
+  const labels=raw.map(t=>t.tanggal||'-');
+  const total=raw.map(t=>sn(t.total_tiket));
+  const selesai=raw.map(t=>sn(t.jumlah_penyelesaian));
+  const naik=raw.map(t=>sn(t.jumlah_dinaikan));
+  const b30=raw.map(t=>sn(t.kurang_tiga_menit));
+  const mid=raw.map(t=>sn(t.enam_menit));
+  const jam=raw.map(t=>sn(t.satu_jam));
+  const mk=(color,data,label,dash=[])=>({
+    label,
+    data,
+    borderColor:color,
+    backgroundColor:color,
+    borderWidth:2.2,
+    pointRadius:3,
+    pointHoverRadius:6,
+    tension:.38,
+    fill:false,
+    borderDash:dash
+  });
+  let datasets=[];
+  if(PERF_MODE==='perf'){
+    datasets=[
+      mk('#667eea',total,'Total Tiket'),
+      mk('#48bb78',b30,'< 30 Mnt'),
+      mk('#ed8936',mid,'30–60 Mnt',[5,3]),
+      mk('#f56565',jam,'> 1 Jam',[2,3])
+    ];
+  }else{
+    datasets=[
+      mk('#667eea',total,'Total Tiket'),
+      mk('#50ff00',selesai,'Selesai'),
+      mk('#ff7300',naik,'Diteruskan')
+    ];
+  }
+  CHART.perf=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{
+        mode:'index',
+        intersect:false
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#374151',
+          titleColor:'#e2e8f0',
+          bodyColor:'#aaa',
+          borderColor:'rgba(255,255,255,.12)',
+          borderWidth:1,
+          padding:12,
+          callbacks:{
+            label(ctx){
+              const v=ctx.parsed.y;
+              const fmt=v%1===0
+                ? v.toLocaleString('id-ID')
+                : v.toLocaleString('id-ID',{
+                    maximumFractionDigits:1
+                  });
+              if(ctx.datasetIndex>0){
+                const tot=total[ctx.dataIndex]||0;
+                const pct=tot>0
+                  ? ` (${(v/tot*100).toFixed(2)}%)`
+                  : '';
+                return ` ${ctx.dataset.label}: ${fmt}${pct}`;
+              }
+              return ` ${ctx.dataset.label}: ${fmt} tiket`;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(128,128,128,.05)'},
+          ticks:{
+            color:'#a0aec0',
+            font:{size:10},
+            maxRotation:45,
+            maxTicksLimit:12
+          }
+        },
+        y:{
+          grid:{color:'rgba(128,128,128,.05)'},
+          ticks:{
+            color:'#a0aec0',
+            font:{size:10},
+            callback:v=>v.toLocaleString('id-ID')
+          },
+          beginAtZero:true
+        }
+      }
+    }
+  });
+}
+
+//-------------
+function openDownloadModal(){
+  document.getElementById('downloadModal').style.display='flex';
+}
+
+function closeDownloadModal(){
+  document.getElementById('downloadModal').style.display='none';
+}
+
+// ── Modal Download PDAD (terpisah dari Performa L1 IKC) ──
+function openDownloadPDADModal(){
+
+  const modal =
+    document.getElementById(
+      'downloadPDADModal'
+    );
+
+  if(!modal) return;
+
+  // loading sementara
+  const wrap =
+    document.getElementById(
+      'pdadDownloadKantor'
+    );
+
+  if(wrap){
+
+    wrap.innerHTML =
+      '<div style="color:#aaa">Loading kantor...</div>';
+  }
+
+  modal.style.display =
+    'flex';
+
+  // retry tunggu data ready
+  let retry = 0;
+
+  const iv = setInterval(() => {
+
+    const ready =
+
+      Array.isArray(
+        CLAYER1?.raw
+      )
+      &&
+      CLAYER1.raw.length > 0;
+
+    console.log(
+      'CHECK RAW:',
+      ready,
+      CLAYER1?.raw?.length
+    );
+
+    if(ready){
+
+      clearInterval(iv);
+
+      buildDownloadKantor();
+    }
+
+    retry++;
+
+    // timeout 5 detik
+    if(retry > 25){
+
+      clearInterval(iv);
+
+      if(wrap){
+
+        wrap.innerHTML =
+          '<div style="color:#ff8080">Data kantor gagal dimuat</div>';
+      }
+    }
+
+  }, 200);
+}
+
+// =========================
+// CLOSE MODAL
+// =========================
+function closeDownloadPDADModal(){
+
+  const modal =
+    document.getElementById(
+      'downloadPDADModal'
+    );
+
+  if(!modal) return;
+
+  modal.style.display =
+    'none';
+}
+
+function togglePDADCustomRange(){
+
+  const range =
+    document.getElementById(
+      'pdadDownloadRange'
+    );
+
+  const wrap =
+    document.getElementById(
+      'pdadCustomDateWrap'
+    );
+
+  if(!range || !wrap) return;
+
+  wrap.style.display =
+
+    range.value === 'custom'
+
+      ? 'block'
+
+      : 'none';
+}
+
+function downloadPDADReport(){
+
+  const rows =
+    getFilteredDownloadData();
+
+  console.log(
+    'DOWNLOAD ROWS:',
+    rows
+  );
+
+  if(!rows.length){
+
+    alert('Data kosong');
+
+    return;
+  }
+
+  const format =
+    document.getElementById(
+      'pdadDownloadFormat'
+    )?.value || 'excel';
+
+  if(format === 'excel'){
+
+    exportPDADExcel(rows);
+
+  }else{
+
+    exportPDADPDF(rows);
+  }
+
+  closeDownloadPDADModal();
+}
+
+function toggleCustomRange(){
+
+  const val =
+    document.getElementById('downloadRange').value;
+
+  document.getElementById('customDateWrap').style.display =
+    val === 'custom'
+      ? 'block'
+      : 'none';
+}
+
+// ========================================
+// GLOBAL HELPER
+// ========================================
+
+function fmt(v){
+  return Number(v || 0)
+    .toLocaleString('id-ID');
+}
+
+function td(v,color='#e2e8f0'){
+
+  return `
+    <td style="
+      padding:12px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      text-align:center;
+      color:${color};
+      font-weight:600;
+    ">
+      ${v}
+    </td>
+  `;
+
+}
+
+function th(v,color='#94a3b8'){
+
+  return `
+    <th style="
+      padding:12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-align:center;
+      color:${color};
+      font-weight:700;
+      font-size:12px;
+    ">
+      ${v}
+    </th>
+  `;
+
+}
+
+function card(title,val){
+
+  return `
+    <div style="
+      background:var(--surface2);
+      border-radius:16px;
+      padding:18px;
+    ">
+
+      <div style="
+        color:#94a3b8;
+        font-size:13px;
+        margin-bottom:6px;
+      ">
+        ${title}
+      </div>
+
+      <div style="
+        font-size:28px;
+        font-weight:bold;
+      ">
+        ${val}
+      </div>
+
+    </div>
+  `;
+
+}
+
+// ========================================
+// BUILD TABLE ROWS
+// support:
+// - render web
+// - export download
+// - perf mode
+// - penyelesaian mode
+// ========================================
+
+function buildPerfRows(
+  rows,
+  isDownload=false,
+  isPerf=true
+){
+
+  return rows.map(t=>{
+
+    const total = sn(t.total_tiket);
+
+    const selesai = sn(t.jumlah_penyelesaian);
+
+    const diteruskan = sn(t.jumlah_dinaikan);
+
+    const b30 = sn(t.kurang_tiga_menit);
+
+    const mid = sn(t.enam_menit);
+
+    const jam = sn(t.satu_jam);
+
+    const rata =
+      t.rata_rata_durasi
+      ?? t.rata_rata
+      ?? t.rataRata
+      ?? t['rata-rata']
+      ?? '-';
+
+    const pct = (v)=>
+      total > 0
+        ? ((v/total)*100).toFixed(2)
+        : '0.00';
+
+    // ====================================
+    // DOWNLOAD TABLE
+    // ====================================
+
+    if(isDownload){
+
+      return `
+
+        <tr>
+
+          ${td(t.tanggal || '-')}
+
+          ${td(
+            fmt(total),
+            '#ffffff'
+          )}
+
+          ${
+            isPerf
+            ? `
+
+              ${td(
+                `${fmt(b30)} (${pct(b30)}%)`,
+                '#48bb78'
+              )}
+
+              ${td(
+                `${fmt(mid)} (${pct(mid)}%)`,
+                '#ed8936'
+              )}
+
+              ${td(
+                `${fmt(jam)} (${pct(jam)}%)`,
+                '#f56565'
+              )}
+
+              ${td(
+                rata,
+                '#e2e8f0'
+              )}
+
+            `
+            : `
+
+              ${td(
+                `${fmt(selesai)} (${pct(selesai)}%)`,
+                '#50ff00'
+              )}
+
+              ${td(
+                `${fmt(diteruskan)} (${pct(diteruskan)}%)`,
+                '#ff7300'
+              )}
+
+            `
+          }
+
+        </tr>
+
+      `;
+    }
+
+    // ====================================
+    // WEB TABLE
+    // ====================================
+
+    return `
+
+      <tr>
+
+        <td class="mono">
+          ${esc(t.tanggal || '-')}
+        </td>
+
+        <td class="mono" style="font-weight:700">
+          ${fmt(total)}
+        </td>
+
+        ${
+          isPerf
+          ? `
+
+            <td class="mono" style="color:var(--success)">
+              ${esc(b30 || '0')}
+            </td>
+
+            <td class="mono" style="color:var(--warn)">
+              ${esc(mid || '0')}
+            </td>
+
+            <td class="mono" style="color:var(--danger)">
+              ${esc(jam || '0')}
+            </td>
+
+            <td class="mono">
+              ${esc(rata)}
+            </td>
+
+          `
+          : `
+
+            <td class="mono" style="color:#50ff00">
+              ${esc(selesai || '0')}
+            </td>
+
+            <td class="mono" style="color:#ff7300">
+              ${esc(diteruskan || '0')}
+            </td>
+
+          `
+        }
+
+      </tr>
+
+    `;
+
+  }).join('');
+
+}
+
+// ========================================
+// SUBMIT DOWNLOAD
+// ========================================
+
+function submitDownloadPerf(){
+
+  const mode =
+    document.getElementById('downloadRange').value;
+
+  const chartType =
+    document.querySelector('.perf-btn.active')
+    ?.dataset.mode || 'perf';
+
+  const raw =
+    window.rawPerfData || [];
+
+  if(!raw.length){
+
+    alert('Tidak ada data');
+
+    return;
+  }
+
+  let filtered = [];
+
+  let label = '';
+
+  if(mode === 'custom'){
+
+    const start =
+      document.getElementById('startDate').value;
+
+    const end =
+      document.getElementById('endDate').value;
+
+    if(!start || !end){
+
+      alert('Pilih tanggal awal dan akhir');
+
+      return;
+    }
+
+    const startTime =
+      new Date(start).getTime();
+
+    const endTime =
+      new Date(end).getTime();
+
+    filtered = raw.filter(x=>{
+
+      const t =
+        new Date(x.tanggal).getTime();
+
+      return t >= startTime && t <= endTime;
+
+    });
+
+    label = `${start} s/d ${end}`;
+
+  }else{
+
+    const days =
+      parseInt(mode);
+
+    filtered =
+      [...raw].slice(-days);
+
+    label = `${days} Hari`;
+
+  }
+
+  if(!filtered.length){
+
+    alert('Data pada range tersebut kosong');
+
+    return;
+  }
+
+  closeDownloadModal();
+
+  downloadPerfReport(
+    filtered,
+    label,
+    chartType
+  );
+
+}
+
+// ========================================
+// DOWNLOAD REPORT
+// ========================================
+
+async function downloadPerfReport(
+  raw,
+  label,
+  chartType='perf'
+){
+
+  const isPerf =
+    chartType === 'perf';
+
+  const reportTitle = isPerf
+    ? 'Analitik Performa Layer 1 IKC'
+    : 'Analitik Penyelesaian Layer 1 IKC';
+
+  const reportSubtitle = isPerf
+    ? 'Kategori: Performa SLA'
+    : 'Kategori: Penyelesaian Tiket';
+
+  // ========================================
+  // SUMMARY
+  // ========================================
+
+  const totalTiket = raw.reduce(
+    (a,b)=>a+sn(b.total_tiket),
+    0
+  );
+
+  const selesai = raw.reduce(
+    (a,b)=>a+sn(b.jumlah_penyelesaian),
+    0
+  );
+
+  const diteruskan = raw.reduce(
+    (a,b)=>a+sn(b.jumlah_dinaikan),
+    0
+  );
+
+  const bawah30 = raw.reduce(
+    (a,b)=>a+sn(b.kurang_tiga_menit),
+    0
+  );
+
+  const mid60 = raw.reduce(
+    (a,b)=>a+sn(b.enam_menit),
+    0
+  );
+
+  const over1 = raw.reduce(
+    (a,b)=>a+sn(b.satu_jam),
+    0
+  );
+
+  // ========================================
+  // AVG SLA
+  // ========================================
+
+  const avgList = raw
+    .map(x=>{
+
+      const val =
+        x.rata_rata_durasi
+        ?? x.rata_rata
+        ?? x.rataRata
+        ?? x['rata-rata']
+        ?? 0;
+
+      return parseFloat(
+        String(val)
+          .replace(/[^\d.,]/g,'')
+          .replace(',','.')
+      ) || 0;
+
+    })
+    .filter(v=>v > 0);
+
+  const totalRata =
+    avgList.reduce((a,b)=>a+b,0);
+
+  const avgRata =
+    avgList.length
+      ? (totalRata / avgList.length).toFixed(2)
+      : '0.00';
+
+  // ========================================
+  // PERCENTAGE
+  // ========================================
+
+  const pctSelesai =
+    totalTiket
+      ? ((selesai/totalTiket)*100).toFixed(2)
+      : 0;
+
+  const pctNaik =
+    totalTiket
+      ? ((diteruskan/totalTiket)*100).toFixed(2)
+      : 0;
+
+  const pct30 =
+    totalTiket
+      ? ((bawah30/totalTiket)*100).toFixed(2)
+      : 0;
+
+  const withPct = raw.map(x=>{
+
+    const total =
+      sn(x.total_tiket);
+
+    const value = isPerf
+      ? sn(x.kurang_tiga_menit)
+      : sn(x.jumlah_penyelesaian);
+
+    return {
+      ...x,
+      pct: total > 0
+        ? (value/total)*100
+        : 0
+    };
+
+  });
+
+  const bestDay =
+    [...withPct]
+      .sort((a,b)=>b.pct-a.pct)[0];
+
+  const worstDay =
+    [...withPct]
+      .sort((a,b)=>a.pct-b.pct)[0];
+
+  // ========================================
+  // WRAPPER
+  // ========================================
+
+  const wrap =
+    document.createElement('div');
+
+  wrap.style.width='1500px';
+  wrap.style.background='#0b1020';
+  wrap.style.color='white';
+  wrap.style.padding='30px';
+  wrap.style.fontFamily='Arial';
+  wrap.style.position='fixed';
+  wrap.style.left='-99999px';
+
+  wrap.innerHTML=`
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      margin-bottom:24px;
+    ">
+
+      <div>
+
+        <div style="
+          font-size:34px;
+          font-weight:bold;
+        ">
+          ${reportTitle}
+        </div>
+
+        <div style="
+          margin-top:8px;
+          color:#94a3b8;
+          font-size:14px;
+        ">
+          ${reportSubtitle}
+          • ${label}
+        </div>
+
+      </div>
+
+      <div style="
+        text-align:right;
+        color:#94a3b8;
+        font-size:14px;
+      ">
+        Download:
+        <br>
+        ${new Date().toLocaleString('id-ID')}
+      </div>
+
+    </div>
+
+    <div style="
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+      margin-bottom:24px;
+    ">
+
+      ${
+        isPerf
+        ? `
+
+          ${card('Total Tiket',fmt(totalTiket))}
+          ${card('% <30 Menit',pct30+'%')}
+          ${card('30–60 Menit',fmt(mid60))}
+          ${card('>1 Jam',fmt(over1))}
+          ${card('Rata-rata SLA',avgRata+' Menit')}
+
+          ${card(
+            'Hari SLA Terbaik',
+            `${bestDay?.tanggal||'-'} (${bestDay?.pct?.toFixed(2)||0}%)`
+          )}
+
+          ${card(
+            'Hari SLA Terburuk',
+            `${worstDay?.tanggal||'-'} (${worstDay?.pct?.toFixed(2)||0}%)`
+          )}
+
+        `
+        : `
+
+          ${card('Total Tiket',fmt(totalTiket))}
+          ${card('Total Selesai',fmt(selesai))}
+          ${card('Total Diteruskan',fmt(diteruskan))}
+          ${card('% Penyelesaian',pctSelesai+'%')}
+          ${card('% Diteruskan',pctNaik+'%')}
+
+          ${card(
+            'Hari Penyelesaian Terbaik',
+            `${bestDay?.tanggal||'-'} (${bestDay?.pct?.toFixed(2)||0}%)`
+          )}
+
+          ${card(
+            'Hari Penyelesaian Terburuk',
+            `${worstDay?.tanggal||'-'} (${worstDay?.pct?.toFixed(2)||0}%)`
+          )}
+
+        `
+      }
+
+    </div>
+
+    <div style="
+      background:var(--surface2);
+      border-radius:18px;
+      padding:20px;
+    ">
+      <canvas id="exportPerfCanvas"></canvas>
+    </div>
+
+    <!-- DETAIL ANALITIK -->
+
+    <div style="
+      margin-top:24px;
+      background:var(--surface2);
+      border-radius:18px;
+      padding:22px;
+    ">
+
+      <div style="
+        font-size:20px;
+        font-weight:bold;
+        margin-bottom:16px;
+      ">
+        Ringkasan Analitik
+      </div>
+
+      <div style="
+        color:#cbd5e1;
+        line-height:1.8;
+        font-size:15px;
+      ">
+
+        ${
+          isPerf
+          ? `
+
+            • Total tiket masuk sebanyak
+            <b>${fmt(totalTiket)}</b> tiket.
+
+            <br><br>
+
+            • SLA kurang dari 30 menit tercapai sebesar
+            <b>${pct30}%</b>.
+
+            <br><br>
+
+            • Tiket durasi 30–60 menit sebanyak
+            <b>${fmt(mid60)}</b> tiket.
+
+            <br><br>
+
+            • Tiket durasi lebih dari 1 jam sebanyak
+            <b>${fmt(over1)}</b> tiket.
+
+            <br><br>
+
+            • Rata-rata SLA harian adalah
+            <b>${avgRata} menit</b>.
+
+            <br><br>
+
+            • Hari SLA terbaik:
+            <b>${bestDay?.tanggal||'-'}</b>
+            dengan capaian
+            <b>${bestDay?.pct?.toFixed(2)||0}%</b>.
+
+            <br><br>
+
+            • Hari SLA terburuk:
+            <b>${worstDay?.tanggal||'-'}</b>
+            dengan capaian
+            <b>${worstDay?.pct?.toFixed(2)||0}%</b>.
+
+          `
+          : `
+
+            • Total tiket masuk sebanyak
+            <b>${fmt(totalTiket)}</b> tiket.
+
+            <br><br>
+
+            • Tingkat penyelesaian mencapai
+            <b>${pctSelesai}%</b>.
+
+            <br><br>
+
+            • Total tiket selesai sebanyak
+            <b>${fmt(selesai)}</b> tiket.
+
+            <br><br>
+
+            • Tiket diteruskan sebanyak
+            <b>${fmt(diteruskan)}</b> tiket
+            atau
+            <b>${pctNaik}%</b>.
+
+            <br><br>
+
+            • Hari penyelesaian terbaik:
+            <b>${bestDay?.tanggal||'-'}</b>
+            dengan capaian
+            <b>${bestDay?.pct?.toFixed(2)||0}%</b>.
+
+            <br><br>
+
+            • Hari penyelesaian terburuk:
+            <b>${worstDay?.tanggal||'-'}</b>
+            dengan capaian
+            <b>${worstDay?.pct?.toFixed(2)||0}%</b>.
+
+          `
+        }
+
+      </div>
+
+    </div>
+
+    <!-- TABLE -->
+
+    <div style="
+      margin-top:24px;
+      background:var(--surface2);
+      border-radius:18px;
+      padding:20px;
+    ">
+
+      <div style="
+        font-size:20px;
+        font-weight:bold;
+        margin-bottom:16px;
+      ">
+
+        ${
+          isPerf
+            ? 'Performa Harian L1 IKC'
+            : 'Penyelesaian Harian L1 IKC'
+        }
+
+        — ${label}
+
+      </div>
+
+      <table style="
+        width:100%;
+        border-collapse:collapse;
+        font-size:13px;
+      ">
+
+        <thead>
+
+          <tr style="
+            background:var(--surface);
+          ">
+
+            ${th('TANGGAL')}
+            ${th('TOTAL')}
+
+            ${
+              isPerf
+              ? `
+                  ${th('<30 MNT','#48bb78')}
+                  ${th('30–60 MNT','#ed8936')}
+                  ${th('>1 JAM','#f56565')}
+                  ${th('RATA-RATA')}
+                `
+              : `
+                  ${th('DISELESAIKAN','#50ff00')}
+                  ${th('DITERUSKAN','#ff7300')}
+                `
+            }
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${buildPerfRows(
+            raw,
+            true,
+            isPerf
+          )}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+  document.body.appendChild(wrap);
+
+  // ========================================
+  // CHART DATA
+  // ========================================
+
+  const labels =
+    raw.map(t=>t.tanggal||'-');
+
+  const total =
+    raw.map(t=>sn(t.total_tiket));
+
+  const selesaiArr =
+    raw.map(t=>sn(t.jumlah_penyelesaian));
+
+  const naikArr =
+    raw.map(t=>sn(t.jumlah_dinaikan));
+
+  const b30Arr =
+    raw.map(t=>sn(t.kurang_tiga_menit));
+
+  const midArr =
+    raw.map(t=>sn(t.enam_menit));
+
+  const jamArr =
+    raw.map(t=>sn(t.satu_jam));
+
+  const ctx =
+    wrap.querySelector('#exportPerfCanvas');
+
+  new Chart(ctx,{
+
+    type:'line',
+
+    data:{
+
+      labels,
+
+      datasets:
+
+      isPerf
+
+      ? [
+
+          {
+            label:'Total Tiket',
+            data:total,
+            borderColor:'#667eea',
+            backgroundColor:'#667eea',
+            borderWidth:3,
+            tension:.35
+          },
+
+          {
+            label:'<30 Mnt',
+            data:b30Arr,
+            borderColor:'#48bb78',
+            backgroundColor:'#48bb78',
+            borderWidth:3,
+            tension:.35
+          },
+
+          {
+            label:'30–60 Mnt',
+            data:midArr,
+            borderColor:'#ed8936',
+            backgroundColor:'#ed8936',
+            borderWidth:3,
+            tension:.35
+          },
+
+          {
+            label:'>1 Jam',
+            data:jamArr,
+            borderColor:'#f56565',
+            backgroundColor:'#f56565',
+            borderWidth:3,
+            tension:.35
+          }
+
+        ]
+
+      : [
+
+          {
+            label:'Total Tiket',
+            data:total,
+            borderColor:'#667eea',
+            backgroundColor:'#667eea',
+            borderWidth:3,
+            tension:.35
+          },
+
+          {
+            label:'Diselesaikan',
+            data:selesaiArr,
+            borderColor:'#50ff00',
+            backgroundColor:'#50ff00',
+            borderWidth:3,
+            tension:.35
+          },
+
+          {
+            label:'Diteruskan',
+            data:naikArr,
+            borderColor:'#ff7300',
+            backgroundColor:'#ff7300',
+            borderWidth:3,
+            tension:.35
+          }
+
+        ]
+
+    },
+
+    options:{
+
+      responsive:true,
+
+      plugins:{
+        legend:{
+          labels:{
+            color:'white'
+          }
+        }
+      },
+
+      scales:{
+
+        x:{
+          ticks:{
+            color:'white'
+          },
+          grid:{
+            color:'rgba(255,255,255,.08)'
+          }
+        },
+
+        y:{
+          ticks:{
+            color:'white'
+          },
+          grid:{
+            color:'rgba(255,255,255,.08)'
+          }
+        }
+
+      }
+
+    }
+
+  });
+
+  await new Promise(r=>setTimeout(r,900));
+
+  html2canvas(wrap,{
+    backgroundColor:'#0b1020',
+    scale:2
+  }).then(canvas=>{
+
+    const a =
+      document.createElement('a');
+
+    a.href =
+      canvas.toDataURL('image/png');
+
+    a.download =
+      `perf-layer1-${Date.now()}.png`;
+
+    a.click();
+
+    wrap.remove();
+
+  });
+
+}
+//----
+function buildDonut(d) {
+  const g = (k1, k2) => +(d.stats?.status?.[k1]?.total || d.stats?.status?.[k2]?.total || 0);
+  const sub = g('Submit','SUBMIT'), l1 = g('Layer1','LAYER1'), l2 = g('Layer2','LAYER2'),
+        l3p = g('Layer3_PSI','LAYER3_PSI'), l3l = g('Layer3_PLD','LAYER3_PLD');
+  const total = sub + l1 + l2 + l3p + l3l;
+
+  // ── Agregasi kategori dari data tiket yang sudah ada ──
+  function aggKategori(tickets) {
+    const map = {};
+    (tickets || []).forEach(t => {
+      const k = (t.kategori || 'LAINNYA').toString().toUpperCase().trim();
+      map[k] = (map[k] || 0) + 1;
+    });
+    return Object.entries(map)
+      .map(([k, v]) => ({ k, v }))
+      .sort((a, b) => b.v - a.v);
+  }
+
+  const kategoriPerLayer = [
+    aggKategori(d.tiketl0?.tickets),   // Submit
+    aggKategori(d.layer1?.tickets),   // Layer 1
+    aggKategori(d.layer2?.tickets),   // Layer 2
+    aggKategori(d.layer3?.tickets?.filter(t => t.status === 'Layer 3 PSI') || []),   // L3 PSI — tidak ada data kategori
+    aggKategori(d.layer3?.tickets?.filter(t => t.status === 'Layer 3 PLD') || []),   // L3 PLD — tidak ada data kategori
+  ];
+
+  const dc = document.getElementById('donutCenter');
+  if (dc) dc.innerHTML = `<div class="big">${total.toLocaleString()}</div><div class="small">total aktif</div>`;
+
+  const ctx = document.getElementById('statusDonut');
+  if (!ctx) return;
+  if (CHART.donut) { CHART.donut.destroy(); CHART.donut = null; }
+
+  const layerMeta = [
+    { label: 'Submit',  val: sub, color: 'rgba(245,101,101,.75)', hc: '#f56565' },
+    { label: 'Layer 1', val: l1,  color: 'rgba(237,137,54,.75)',  hc: '#ed8936' },
+    { label: 'Layer 2', val: l2,  color: 'rgba(124,106,247,.75)', hc: '#667eea' },
+    { label: 'L3 PSI',  val: l3p, color: 'rgba(79,209,197,.75)',  hc: '#764ba2' },
+    { label: 'L3 PLD',  val: l3l, color: 'rgba(72,187,120,.75)',  hc: '#48bb78' },
+  ];
+
+  let activeDonutIdx = null;
+
+  CHART.donut = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: layerMeta.map(l => l.label),
+      datasets: [{
+        data: layerMeta.map(l => l.val),
+        backgroundColor: layerMeta.map(l => l.color),
+        hoverBackgroundColor: layerMeta.map(l => l.hc),
+        borderWidth: 0, hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '72%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#374151', titleColor: '#e2e8f0', bodyColor: '#a0aec0', borderColor: 'rgba(255,255,255,.1)', borderWidth: 1 }
+      },
+      onClick: (_, elements) => {
+        if (!elements.length) return;
+        const idx = elements[0].index;
+        activeDonutIdx = (activeDonutIdx === idx) ? null : idx;
+        renderDonutBreakdown(activeDonutIdx, layerMeta, kategoriPerLayer);
+        // update offset slice
+        const meta = CHART.donut.getDatasetMeta(0);
+        meta.data.forEach((arc, i) => { arc.options.offset = (i === activeDonutIdx) ? 10 : 0; });
+        CHART.donut.update('none');
+      }
+    }
+  });
+
+  // Pills — bisa klik juga
+  document.getElementById('statusPills').innerHTML = layerMeta.map((l, i) =>
+    `<span class="pill" style="color:${l.hc};background:${l.hc}22;border:1px solid ${l.hc}44;cursor:pointer"
+      onclick="clickDonutPill(${i})">${l.label}: ${l.val}</span>`
+  ).join('');
+
+  // Simpan di window supaya bisa diakses pill onclick
+  window._donutLayerMeta = layerMeta;
+  window._donutKategori  = kategoriPerLayer;
+  window._activeDonutIdx = null;
+
+  // Reset breakdown
+  const bd = document.getElementById('statusBreakdown');
+  if (bd) bd.style.display = 'none';
+}
+
+function clickDonutPill(idx) {
+  window._activeDonutIdx = (window._activeDonutIdx === idx) ? null : idx;
+  const meta = CHART.donut?.getDatasetMeta(0);
+  if (meta) {
+    meta.data.forEach((arc, i) => { arc.options.offset = (i === window._activeDonutIdx) ? 10 : 0; });
+    CHART.donut.update('none');
+  }
+  renderDonutBreakdown(window._activeDonutIdx, window._donutLayerMeta, window._donutKategori);
+}
+
+function renderDonutBreakdown(activeIdx, layerMeta, kategoriPerLayer) {
+  window._activeDonutIdx = activeIdx;
+  const bd = document.getElementById('statusBreakdown');
+  if (!bd) return;
+
+  if (activeIdx === null) { bd.style.display = 'none'; return; }
+
+  const meta  = layerMeta[activeIdx];
+  const cats  = kategoriPerLayer[activeIdx] || [];
+  const maxV  = Math.max(...cats.map(c => c.v), 1);
+
+  document.getElementById('breakdownTitle').textContent =
+    `Breakdown kategori — ${meta.label} (${meta.val} tiket)`;
+
+  document.getElementById('breakdownBars').innerHTML = cats.length
+    ? cats.map(c => {
+        const pct  = Math.round(c.v / maxV * 100);
+        const lpct = meta.val > 0 ? Math.round(c.v / meta.val * 100) : 0;
+        return `<div class="daily-row" style="padding:4px 0">
+          <span class="daily-label" style="min-width:95px;font-size:.72rem">${esc(c.k)}</span>
+          <div class="daily-bars" style="flex:1">
+            <div class="bar-track"><div class="bar-fill masuk" style="width:${pct}%;background:${meta.hc}99"></div></div>
+          </div>
+          <span class="daily-nums" style="font-size:.7rem;min-width:55px">
+            ${c.v} <span style="opacity:.5;font-size:.65rem">(${lpct}%)</span>
+          </span>
+        </div>`;
+      }).join('')
+    : '<div style="font-size:.72rem;color:var(--muted);padding:4px 0">Tidak ada data kategori</div>';
+
+  bd.style.display = 'block';
+}
+
+function initClayer1(data){
+  const tickets=data.tickets||[];
+  window._clayer1Tickets=tickets; // simpan untuk download PDAD
+  document.getElementById('clayer1TableBody').innerHTML=tickets.map(t=>{const pct=parseFloat(t.status_name)||0,color=pct>=70?'var(--success)':pct>=40?'var(--warn)':'var(--danger)';return`<tr><td>${esc(t.ticket_number)}</td><td class="mono">${t.officer_name||0}</td><td class="mono">${t.duration||0}</td><td><div class="pct-cell"><div class="pct-mini"><div class="pct-mini-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div><span class="pct-label" style="color:${color}">${pct.toFixed(1)}%</span></div></td></tr>`;}).join('')||'<tr><td colspan="4" class="no-data">Tidak ada data</td></tr>';
+  const top12=[...tickets].sort((a,b)=>+(b.officer_name||0)-+(a.officer_name||0)).slice(0,12);
+  const ctx=document.getElementById('dpaBarChart');if(!ctx)return;if(CHART.dpa){CHART.dpa.destroy();CHART.dpa=null;}
+  CHART.dpa=new Chart(ctx,{type:'bar',data:{labels:top12.map(t=>(t.ticket_number||'').replace('KPPBC ','').replace('KPU ','')),datasets:[{label:'Total',data:top12.map(t=>+(t.officer_name||0)),backgroundColor:'rgba(124,106,247,.65)',borderRadius:3,borderSkipped:false},{label:'Selesai',data:top12.map(t=>+(t.duration||0)),backgroundColor:'rgba(79,209,197,.75)',borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#374151',titleColor:'#e2e8f0',bodyColor:'#a0aec0',borderColor:'rgba(255,255,255,.1)',borderWidth:1}},scales:{x:{grid:{display:false},ticks:{color:'#a0aec0',font:{size:9},maxRotation:60}},y:{grid:{color:'rgba(128,128,128,.06)'},ticks:{color:'#a0aec0',font:{size:10}}}}}});
+}
+function initClayer2(data){
+  const ticketsRaw=data?.tickets||[];
+
+  // Samakan pola Capaian IKC dengan Capaian Penyelesaian Layer 1:
+  // - normalisasi nama petugas + nilai Hari Ini/Kemarin
+  // - urutkan berdasarkan Hari Ini desc
+  // - tabel dan chart memakai array/index yang sama
+  const tickets=ticketsRaw.map(t=>({
+    ...t,
+    _name: t.name ?? t.petugas ?? t.ticket_number ?? t.officer ?? '-',
+    _today: +(t.today ?? t.hari_ini ?? t.officer_name ?? 0),
+    _yesterday: +(t.yesterday ?? t.kemarin ?? t.duration ?? 0)
+  })).sort((a,b)=>b._today-a._today);
+
+  window._clayer2Tickets=tickets;
+
+  const tbody=document.getElementById('clayer2TableBody');
+  if(tbody){
+    tbody.innerHTML=tickets.map((t,i)=>{
+      const diff=t._today-t._yesterday;
+      const dCls=diff>0?'color:var(--success)':diff<0?'color:var(--danger)':'color:var(--muted)';
+      return `<tr data-idx="${i}">
+        <td>${esc(t._name)}</td>
+        <td><span class="badge badge-info">${esc(t.status_name||t.status||'—')}</span></td>
+        <td class="mono" style="${dCls};font-weight:600">${t._today}</td>
+        <td class="mono">${t._yesterday}</td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="4" class="no-data">Tidak ada data</td></tr>';
+  }
+
+  const top10=tickets.slice(0,10);
+  const ctx=document.getElementById('ikcBarChart');
+  if(!ctx)return;
+  if(CHART.ikc){CHART.ikc.destroy();CHART.ikc=null;}
+  hideBarTooltipHTML('ikc-bar-tip');
+
+  CHART.ikc=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:top10.map(t=>t._name),
+      datasets:[
+        {label:'Hari Ini',data:top10.map(t=>t._today),backgroundColor:'rgba(124,106,247,.75)',hoverBackgroundColor:'rgba(124,106,247,1)',borderRadius:3,borderSkipped:false},
+        {label:'Kemarin',data:top10.map(t=>t._yesterday),backgroundColor:'rgba(107,107,138,.35)',hoverBackgroundColor:'rgba(107,107,138,.7)',borderRadius:3,borderSkipped:false}
+      ]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{enabled:false}},
+      scales:{
+        x:{grid:{color:'rgba(128,128,128,.06)'},ticks:{color:'#a0aec0',font:{size:10}}},
+        y:{grid:{display:false},ticks:{color:'#a0aec0',font:{size:9}}}
+      },
+      onHover:(evt,active)=>{
+        const rows=document.querySelectorAll('#clayer2TableBody tr');
+        rows.forEach(r=>r.classList.remove('tbl-highlight'));
+        if(active.length){
+          const idx=active[0].index;
+          const row=document.querySelector(`#clayer2TableBody tr[data-idx="${idx}"]`);
+          if(row){row.classList.add('tbl-highlight');row.scrollIntoView({block:'nearest'});}
+          const t=top10[idx];
+          const pos=barElementClientPos(CHART.ikc,active[0].datasetIndex,idx);
+          if(t&&pos)showBarTooltipHTML('ikc-bar-tip',[
+            {text:t._name,head:true},
+            {text:`Hari Ini: ${t._today}`,color:'rgba(124,106,247,.95)'},
+            {text:`Kemarin: ${t._yesterday}`,color:'rgba(107,107,138,.85)'}
+          ],pos.x,pos.y);
+        }else{
+          hideBarTooltipHTML('ikc-bar-tip');
+        }
+      }
+    }
+  });
+
+  // Hover tabel -> highlight bar chart, sama seperti Capaian Penyelesaian Layer 1
+  if(tbody){
+    tbody.querySelectorAll('tr[data-idx]').forEach(row=>{
+      const i=+row.dataset.idx;
+      row.addEventListener('mouseenter',()=>{
+        if(i<top10.length&&CHART.ikc){
+          CHART.ikc.setActiveElements([{datasetIndex:0,index:i},{datasetIndex:1,index:i}]);
+          CHART.ikc.update('none');
+          const t=top10[i];
+          const pos=barElementClientPos(CHART.ikc,0,i);
+          if(t&&pos)showBarTooltipHTML('ikc-bar-tip',[
+            {text:t._name,head:true},
+            {text:`Hari Ini: ${t._today}`,color:'rgba(124,106,247,.95)'},
+            {text:`Kemarin: ${t._yesterday}`,color:'rgba(107,107,138,.85)'}
+          ],pos.x,pos.y);
+        }
+        tbody.querySelectorAll('tr').forEach(r=>r.classList.remove('tbl-highlight'));
+        row.classList.add('tbl-highlight');
+      });
+      row.addEventListener('mouseleave',()=>{
+        row.classList.remove('tbl-highlight');
+        if(CHART.ikc){CHART.ikc.setActiveElements([]);CHART.ikc.update('none');}
+        hideBarTooltipHTML('ikc-bar-tip');
+      });
+    });
+  }
+}
+
+let _searchDebounce=null;
+function setupSearch(){
+  document.getElementById('globalSearch')?.addEventListener('input',function(){
+    const val=this.value;
+    if(_searchDebounce)clearTimeout(_searchDebounce);
+    _searchDebounce=setTimeout(()=>applyMainFilter(val),220);
+  });
+}
+function applyMainFilter(q){
+  if(q===undefined)q=document.getElementById('globalSearch')?.value||'';
+  const qL=q.toLowerCase().trim();
+  const matches=t=>Object.values(t).some(v=>(v||'').toString().toLowerCase().includes(qL));
+  ['layer1','layer2','layer3'].forEach(layer=>{ps[layer].fil=qL?ps[layer].all.filter(matches):[...ps[layer].all];ps[layer].pg=1;});
+  ps.urgent.fil=qL?ps.urgent.all.filter(matches):[...ps.urgent.all];ps.urgent.pg=1;
+  ps.perf.fil=qL?ps.perf.all.filter(matches):[...ps.perf.all];ps.perf.pg=1;
+
+  // Capaian Duktek / PDAD & Capaian IKC ikut ter-filter oleh pencarian global
+  const c1=qL?(window._rawClayer1||[]).filter(matches):(window._rawClayer1||[]);
+  const c2=qL?(window._rawClayer2||[]).filter(matches):(window._rawClayer2||[]);
+  initClayer1({tickets:c1});
+  initClayer2({tickets:c2});
+
+  renderUrgent();renderLayerTable();renderPerf();renderOfficers();
+}
+
+function popDrop(key){
+  const cfg=PC[key];if(!cfg)return;
+  cfg.fc.forEach(fc=>{
+    const sel=document.getElementById(`col-${key}-${fc.fid}`);if(!sel)return;
+    const cur=sel.value;
+    const vals=[...new Set(pp[key].all.map(t=>(t[fc.dk]||'')).filter(Boolean))].sort((a,b)=>a.toString().localeCompare(b.toString(),undefined,{numeric:true}));
+    sel.innerHTML='<option value="">Semua</option>'+vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+    if(cur)sel.value=cur;
+  });
+}
+function onFilter(key){
+  const cfg=PC[key];if(!cfg)return;
+  const q=(document.getElementById(cfg.sid)?.value||'').toLowerCase().trim();
+  const cf={};cfg.fc.forEach(fc=>{const v=document.getElementById(`col-${key}-${fc.fid}`)?.value||'';if(v)cf[fc.dk]=v;});
+  pp[key].af=cf;
+  let res=[...pp[key].all];
+  if(q)res=res.filter(t=>Object.values(t).some(v=>(v||'').toString().toLowerCase().includes(q)));
+  Object.entries(cf).forEach(([dk,v])=>{res=res.filter(t=>(t[dk]||'').toString()===v);});
+  const sc=document.getElementById(cfg.scolid)?.value,sd=document.getElementById(cfg.sdirid)?.value||'asc';
+  if(sc)res=[...res].sort((a,b)=>{const av=(a[sc]||'').toString(),bv=(b[sc]||'').toString();return sd==='asc'?av.localeCompare(bv,undefined,{numeric:true}):bv.localeCompare(av,undefined,{numeric:true});});
+  pp[key].fil=res;renderPT(key);renderChips(key,q,cf,cfg);
+}
+function resetF(key){
+  const cfg=PC[key];if(!cfg)return;
+  const si=document.getElementById(cfg.sid);if(si)si.value='';
+  cfg.fc.forEach(fc=>{const s=document.getElementById(`col-${key}-${fc.fid}`);if(s)s.value='';});
+  const sc=document.getElementById(cfg.scolid);if(sc)sc.selectedIndex=0;
+  const sd=document.getElementById(cfg.sdirid);if(sd)sd.selectedIndex=0;
+  pp[key].af={};pp[key].fil=[...pp[key].all];renderPT(key);renderChips(key,'',{},cfg);
+}
+function renderChips(key,q,cf,cfg){
+  const chips=[];
+  if(q)chips.push(`<span class="chip">🔍 "${q}" <span class="chip-x" onclick="clrSrch('${key}')">×</span></span>`);
+  Object.entries(cf).forEach(([dk,v])=>{const fc=cfg.fc.find(f=>f.dk===dk);chips.push(`<span class="chip">${fc?fc.lbl:dk}: ${esc(v)} <span class="chip-x" onclick="clrCol('${key}','${dk}')">×</span></span>`);});
+  const el=document.getElementById(cfg.chid);if(el)el.innerHTML=chips.join('');
+}
+function clrSrch(key){const cfg=PC[key];const si=document.getElementById(cfg?.sid);if(si)si.value='';onFilter(key);}
+function clrCol(key,dk){const cfg=PC[key];if(!cfg)return;const fc=cfg.fc.find(f=>f.dk===dk);const sel=document.getElementById(`col-${key}-${fc?.fid}`);if(sel)sel.value='';onFilter(key);}
+function renderPT(key){
+  const cfg=PC[key];if(!cfg)return;const data=pp[key].fil;
+  const tbody=document.getElementById(cfg.bid);if(!tbody)return;
+  if(!data.length){tbody.innerHTML=`<tr><td colspan="${cfg.cols.length}" class="no-data">Tidak ada data sesuai filter</td></tr>`;setText(cfg.iid,'0 data');return;}
+  tbody.innerHTML=data.map(t=>`<tr>${cfg.cols.map((c,i)=>`<td class="${(cfg.mono||[]).includes(i)?'mono':''}">${esc(t[c])}</td>`).join('')}</tr>`).join('');
+  setText(cfg.iid,`${data.length} data`);
+}
+
+function openP(id){document.getElementById(id)?.classList.add('active');}
+function closeP(id){document.getElementById(id)?.classList.remove('active');}
+function openPK(key){popDrop(key);pp[key].fil=[...pp[key].all];renderPT(key);}
+function showPopup(){openPK('submit');openP('popupOverlay');}
+function closePopup(){closeP('popupOverlay');}
+function showLayer1Popup(){openPK('layer1p');openP('popupLayer1Overlay');}
+function closeLayer1Popup(){closeP('popupLayer1Overlay');}
+function showLayer2Popup(){openPK('layer2p');openP('popupLayer2Overlay');}
+function closeLayer2Popup(){closeP('popupLayer2Overlay');}
+function showIkuPopup(){pp.iku.all=[...(ikuTicketsData?.tickets||[])];pp.iku.fil=[...pp.iku.all];pp.iku.af={};openPK('iku');openP('popupIkuOverlay');}
+function closeIkuPopup(){closeP('popupIkuOverlay');}
+function showCapaianPopup(){pp.capaian.all=[...(capaianTicketsData?.tickets||[])];pp.capaian.fil=[...pp.capaian.all];pp.capaian.af={};openPK('capaian');openP('popupCapaianOverlay');}
+function closeCapaianPopup(){closeP('popupCapaianOverlay');}
+function showTiketl0Popup(){openPK('tiketl0');openP('popupTiketl0Overlay');}
+function closeTiketl0Popup(){closeP('popupTiketl0Overlay');}
+function showTiketl1Popup(){openPK('tiketl1');openP('popupTiketl1Overlay');}
+function closeTiketl1Popup(){closeP('popupTiketl1Overlay');}
+window.addEventListener('click',e=>{['popupOverlay','popupLayer1Overlay','popupLayer2Overlay','popupIkuOverlay','popupCapaianOverlay','popupTiketl0Overlay','popupTiketl1Overlay'].forEach(id=>{if(e.target===document.getElementById(id))closeP(id);});});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')['popupOverlay','popupLayer1Overlay','popupLayer2Overlay','popupIkuOverlay','popupCapaianOverlay','popupTiketl0Overlay','popupTiketl1Overlay'].forEach(id=>closeP(id));});
+
+function cpPopup(key){const cfg=PC[key];if(!cfg)return;const data=pp[key].fil;if(!data.length){alert('Tidak ada data');return;}const text=[cfg.heads.join('\t'),...data.map(t=>cfg.cols.map(c=>String(t[c]??'-')).join('\t'))].join('\n');if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>toast('✅ Berhasil dicopy!')).catch(()=>fbCopy(text));}else fbCopy(text);}
+function dlPopup(key){const cfg=PC[key];if(!cfg)return;const data=pp[key].fil;if(!data.length){alert('Tidak ada data');return;}if(typeof XLSX==='undefined'){alert('XLSX library tidak tersedia');return;}const rows=data.map(t=>cfg.cols.map(c=>String(t[c]??'-')));const ws=XLSX.utils.aoa_to_sheet([cfg.heads,...rows]);ws['!cols']=cfg.heads.map((_,i)=>({wch:Math.max(...[cfg.heads[i],...rows.map(r=>r[i])].map(v=>String(v).length))+2}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,key.slice(0,31));XLSX.writeFile(wb,`ceismon_${key}_${new Date().toISOString().slice(0,10)}.xlsx`);}
+function fbCopy(text){const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;top:-9999px;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('✅ Berhasil dicopy!');}catch{alert('Gagal copy.');}document.body.removeChild(ta);}
+function toast(msg){const t=document.createElement('div');t.textContent=msg;t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding:8px 20px;border-radius:20px;font-size:.82rem;font-weight:600;z-index:99999;transition:opacity .3s';document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);}
+
+function renderPgBtns(cid,pg,total,sk){
+  const c=document.getElementById(cid);if(!c)return;if(total<=1){c.innerHTML='';return;}
+  let h=`<button class="pager-btn" onclick="goPg('${sk}',${pg-1})" ${pg===1?'disabled':''}>‹</button>`;
+  pgNums(pg,total).forEach(n=>{if(n==='…')h+=`<button class="pager-btn" disabled>…</button>`;else h+=`<button class="pager-btn ${n===pg?'active':''}" onclick="goPg('${sk}',${n})">${n}</button>`;});
+  h+=`<button class="pager-btn" onclick="goPg('${sk}',${pg+1})" ${pg===total?'disabled':''}>›</button>`;c.innerHTML=h;
+}
+function pgNums(cur,tot){if(tot<=7)return Array.from({length:tot},(_,i)=>i+1);const p=[1];if(cur>3)p.push('…');for(let i=Math.max(2,cur-1);i<=Math.min(tot-1,cur+1);i++)p.push(i);if(cur<tot-2)p.push('…');p.push(tot);return p;}
+function goPg(sk,pg){if(sk==='urgent'){ps.urgent.pg=pg;renderUrgent();}else if(sk==='perf'){ps.perf.pg=pg;renderPerf();}else if(sk==='perfduk'){if(ps.perfduk){ps.perfduk.pg=pg;renderPerfduk();}}else if(['layer1','layer2','layer3'].includes(sk)){ps[sk].pg=pg;if(activeLayer===sk)renderLayerTable();}}
+
+function startRefresh(){if(refreshTimer)clearInterval(refreshTimer);refreshTimer=setInterval(loadAll,REFRESH_MS);}
+function updateIndicator(){const el=document.getElementById('updateIndicator');if(el)el.textContent='Terakhir diupdate: '+new Date().toLocaleString('id-ID');document.getElementById('updateDot')?.classList.remove('loading');syncHeaderHeight();}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInterval(refreshTimer);else{startRefresh();loadAll();}});
+
+function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+function esc(s){if(s==null)return'—';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ══════════════════════════════════════════════════════
+// Tooltip HTML kustom untuk bar chart (officerBarChart & ikcBarChart)
+// Dipakai menggantikan tooltip bawaan Chart.js karena posisinya bisa
+// meleset saat dipaksa via setActiveElements(...,{x:0,y:0}). Di sini
+// posisi dihitung langsung dari koordinat elemen bar yang sesungguhnya
+// (chart.getDatasetMeta), jadi selalu presisi terlepas dari elemen mana
+// yang memicunya (hover chart langsung ATAU hover baris tabel).
+// ══════════════════════════════════════════════════════
+function barElementClientPos(chart,datasetIndex,index){
+  const meta=chart&&chart.getDatasetMeta&&chart.getDatasetMeta(datasetIndex);
+  const el=meta&&meta.data&&meta.data[index];
+  if(!el)return null;
+  const rect=chart.canvas.getBoundingClientRect();
+  return{x:rect.left+el.x,y:rect.top+el.y};
+}
+function showBarTooltipHTML(id,lines,clientX,clientY){
+  let el=document.getElementById(id);
+  if(!el){
+    el=document.createElement('div');
+    el.id=id;
+    el.style.cssText=`position:fixed;z-index:99999;pointer-events:none;background:rgba(15,15,25,0.97);
+      border:1.5px solid #667eea;border-radius:8px;padding:8px 12px;font-family:'Space Mono',monospace;
+      font-size:12px;line-height:1.7;color:#e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,0.5);max-width:280px;`;
+    document.body.appendChild(el);
+  }
+  el.innerHTML=lines.map(l=>{
+    const sw=l.color?`<span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${l.color};margin-right:6px;vertical-align:middle;"></span>`:'';
+    return`<div style="white-space:nowrap;${l.head?'font-weight:700;color:#a0c4ff;border-bottom:1px solid #444;padding-bottom:5px;margin-bottom:5px;':''}">${sw}${esc(l.text)}</div>`;
+  }).join('');
+  el.style.display='block';
+
+  const rect=el.getBoundingClientRect();
+  let left=clientX+14,top=clientY-rect.height/2;
+  if(left+rect.width>window.innerWidth-8)left=clientX-rect.width-14;
+  if(left<8)left=8;
+  if(top<8)top=8;
+  if(top+rect.height>window.innerHeight-8)top=window.innerHeight-rect.height-8;
+  el.style.left=left+'px';
+  el.style.top=top+'px';
+}
+function hideBarTooltipHTML(id){
+  const el=document.getElementById(id);
+  if(el)el.style.display='none';
+}
+function sn(v){if(v==null||v===''||v==='-')return 0;const n=parseFloat(String(v).replace(/,/g,'.'));return isNaN(n)?0:n;}
+
+/* ══════════════════════════════════════════════════════
+   FOLLOW UP TIKET — antrian berjalan (marquee vertikal)
+   Sumber: GET /api/tickets/followups?status=open&days=30
+   ══════════════════════════════════════════════════════ */
+const FU_API = `${window.location.origin}/api/tickets/followups`;
+const FU_REFRESH_MS = 10000;   // refresh data dari server tiap 10 detik
+const FU_ROW_HEIGHT = 44;      // harus sama dgn min-height .fu-row
+const FU_VISIBLE_ROWS = 6;    // tampil ~6 baris per viewport
+const FU_SPEED_PX_S = 18;      // kecepatan antrian berjalan (px/detik)
+const FU = {
+  1:{data:[],track:null,vp:null,offset:0,raf:null,rowH:FU_ROW_HEIGHT,paused:false,scrolling:false,singleSetHeight:0},
+  2:{data:[],track:null,vp:null,offset:0,raf:null,rowH:FU_ROW_HEIGHT,paused:false,scrolling:false,singleSetHeight:0},
+  3:{data:[],track:null,vp:null,offset:0,raf:null,rowH:FU_ROW_HEIGHT,paused:false,scrolling:false,singleSetHeight:0},
+};
+
+function initFollowUp(){
+  FU[1].vp=document.getElementById('fuViewportL1');FU[1].track=document.getElementById('fuTrackL1');
+  FU[2].vp=document.getElementById('fuViewportL2');FU[2].track=document.getElementById('fuTrackL2');
+  FU[3].vp=document.getElementById('fuViewportL3');FU[3].track=document.getElementById('fuTrackL3');
+  loadFollowUp();
+  setInterval(loadFollowUp,FU_REFRESH_MS); // UI ikut ter-update tiap 10 detik tanpa reload halaman
+}
+
+async function loadFollowUp() {
+  try {
+    const url = new URL(FU_API);
+    url.searchParams.set('t', Date.now());
+
+    const r = await fetch(url.toString());
+
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+
+    const d = await r.json();
+
+    if (d.success === false) throw new Error(d.error || 'Unknown');
+
+    // Tetap hanya menampilkan tiket yang belum selesai
+    const tickets = (d.tickets || []).filter(
+      t => t.selesai_proses === false || t.selesai_proses === 'false'
+    );
+
+    // Urutkan dari yang paling lama menunggu
+    tickets.sort((a, b) => {
+      const ta = new Date(a.first_seen_at || 0).getTime() || 0;
+      const tb = new Date(b.first_seen_at || 0).getTime() || 0;
+      return ta - tb;
+    });
+
+    fuAllTickets = tickets;
+    applyFollowUpFilter();
+
+  } catch (e) {
+    console.error('followups error', e);
+
+    [1, 2, 3].forEach(l => {
+      const el = document.getElementById(
+        'fuTrack' + (l === 1 ? 'L1' : l === 2 ? 'L2' : 'L3')
+      );
+
+      if (el && !FU[l].data.length) {
+        el.innerHTML = `<div class="fu-empty">⚠ Gagal memuat</div>`;
+      }
+    });
+  }
+}
+
+function applyFollowUpFilter(){
+  const qL=(document.getElementById('globalSearch')?.value||'').toLowerCase().trim();
+  const filtered=qL?fuAllTickets.filter(t=>Object.values(t).some(v=>(v||'').toString().toLowerCase().includes(qL))):fuAllTickets;
+
+  const byLayer = { 1: [], 2: [], 3: [] };
+
+  filtered.forEach(t => {
+    const l = Number(t.layer);
+    if (byLayer[l]) {
+      byLayer[l].push(t);
+    }
+  });
+
+  setText('fuTotalBadge', `${filtered.length} tiket`);
+
+  [1, 2, 3].forEach(l => renderFollowUpCol(l, byLayer[l]));
+}
+
+function fuChanClass(ch){
+  const c=(ch||'').toLowerCase();
+  if(c==='whatsapp')return'fu-chan-whatsapp';
+  if(c==='telegram')return'fu-chan-telegram';
+  if(c==='email')return'fu-chan-email';
+  if(c==='telepon'||c==='phone')return'fu-chan-telepon';
+  return'fu-chan-other';
+}
+const FU_ICON_WA=`<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.47 14.38c-.28-.14-1.64-.81-1.9-.9-.25-.1-.44-.14-.62.13-.18.28-.71.9-.87 1.08-.16.18-.32.2-.6.07-.28-.14-1.19-.44-2.26-1.39-.84-.75-1.4-1.67-1.56-1.95-.16-.28-.02-.43.12-.57.13-.13.28-.32.42-.49.14-.16.18-.28.28-.46.09-.18.05-.35-.02-.49-.07-.14-.62-1.5-.85-2.05-.22-.53-.45-.46-.62-.47-.16-.01-.35-.01-.53-.01-.18 0-.49.07-.74.35-.25.28-.98.96-.98 2.34 0 1.38 1 2.71 1.14 2.9.14.18 1.97 3.01 4.78 4.22.67.29 1.19.46 1.6.59.67.21 1.28.18 1.76.11.54-.08 1.64-.67 1.87-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.32z"/><path d="M12.04 2C6.58 2 2.13 6.42 2.13 11.87c0 1.87.5 3.62 1.44 5.13L2 22l5.15-1.54a9.95 9.95 0 0 0 4.89 1.28h.01c5.46 0 9.91-4.42 9.91-9.87C21.96 6.42 17.51 2 12.04 2zm0 18.02h-.01a8.1 8.1 0 0 1-4.15-1.15l-.3-.18-3.06.92.92-2.99-.2-.31a8.14 8.14 0 0 1-1.24-4.34c0-4.5 3.65-8.16 8.15-8.16 2.18 0 4.22.85 5.76 2.39a8.09 8.09 0 0 1 2.39 5.77c0 4.5-3.66 8.05-8.26 8.05z"/></svg>`;
+const FU_ICON_TG=`<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M21.85 3.28 2.9 10.7c-1.28.51-1.27 1.22-.23 1.54l4.86 1.52 1.87 5.73c.23.63.12.88.78.88.51 0 .73-.23 1.01-.5l2.42-2.35 5.03 3.72c.93.51 1.6.25 1.83-.86l3.32-15.65c.34-1.36-.51-1.98-1.44-1.55zM8.98 13.6l9.7-6.12c.46-.28.87-.13.53.18l-8.13 7.33-.32 3.4-1.78-4.79z"/></svg>`;
+function fuChanIcon(ch){
+  const c=(ch||'').toLowerCase();
+  if(c==='whatsapp')return FU_ICON_WA;
+  if(c==='telegram')return FU_ICON_TG;
+  return'';
+}
+
+// Format waktu berjalan sejak first_seen_at, mis. "2j 15m lalu"
+function fuElapsed(iso){
+  if(!iso)return'-';
+  const t=new Date(iso).getTime();
+  if(isNaN(t))return'-';
+  let diff=Math.floor((Date.now()-t)/1000);
+  if(diff<0)diff=0;
+  const d=Math.floor(diff/86400);diff-=d*86400;
+  const h=Math.floor(diff/3600);diff-=h*3600;
+  const m=Math.floor(diff/60);
+  if(d>0)return`${d}h ${h}j lalu`;
+  if(h>0)return`${h}j ${m}m lalu`;
+  if(m>0)return`${m}m lalu`;
+  return'baru saja';
+}
+
+function fuRowHtml(t){
+  return`<div class="fu-row">
+    <div class="fu-row-top">
+      <span class="fu-num">${esc(t.nomor_tiket)}</span>
+      <span class="fu-chan ${fuChanClass(t.channel)}">${fuChanIcon(t.channel)}${esc((t.channel||'-').toUpperCase())}</span>
+    </div>
+    <div class="fu-row-bottom">
+      <span class="fu-officer">${esc(t.nama_petugas)}</span>
+      <span class="fu-time">${fuElapsed(t.first_seen_at)}</span>
+    </div>
+  </div>`;
+}
+
+function renderFollowUpCol(layer,tickets){
+  const st=FU[layer];
+  setText('fuCountL'+layer,tickets.length);
+  st.data=tickets;
+
+  if(st.raf){cancelAnimationFrame(st.raf);st.raf=null;}
+
+  if(!tickets.length){
+    st.scrolling=false;st.offset=0;
+    st.track.style.transform='translateY(0)';
+    st.track.innerHTML='<div class="fu-empty">Tidak ada tiket follow up</div>';
+    return;
+  }
+
+  const rowsHtml=tickets.map(fuRowHtml).join('');
+
+  // Jika sedang dijeda manual: tampilkan list penuh, biarkan discroll manual, tidak dianimasikan.
+  // Posisi scroll yang sedang dilihat user dipertahankan walau data refresh tiap 10 detik.
+  if(st.paused){
+    st.scrolling=false;
+    const prevScrollTop=st.vp?st.vp.scrollTop:0;
+    st.track.style.transform='translateY(0)';
+    st.track.innerHTML=rowsHtml;
+    if(st.vp)st.vp.scrollTop=prevScrollTop;
+    return;
+  }
+
+  const wasScrolling=st.scrolling;
+
+  // Jika data <= yang muat di viewport, tampil statis tanpa animasi
+  if(tickets.length<=FU_VISIBLE_ROWS){
+    st.scrolling=false;st.offset=0;
+    st.track.style.transform='translateY(0)';
+    st.track.innerHTML=rowsHtml;
+    return;
+  }
+
+  // Duplikasi list agar loop scroll mulus (seamless)
+  st.track.innerHTML=rowsHtml+rowsHtml;
+  st.scrolling=true;
+  st.singleSetHeight=tickets.length*st.rowH;
+  // Jika sebelumnya sudah berjalan, lanjutkan dari posisi terakhir (tidak "lompat" ke atas tiap refresh)
+  st.offset=wasScrolling?(st.offset%st.singleSetHeight):0;
+  st.track.style.transform=`translateY(-${st.offset}px)`;
+
+  startFollowUpAnimation(layer);
+}
+
+function startFollowUpAnimation(layer){
+  const st=FU[layer];
+  if(!st.scrolling||st.paused)return;
+  if(st.raf)cancelAnimationFrame(st.raf);
+  let lastTs=null;
+  function step(ts){
+    if(lastTs===null)lastTs=ts;
+    const dt=(ts-lastTs)/1000;
+    lastTs=ts;
+    st.offset+=FU_SPEED_PX_S*dt;
+    if(st.offset>=st.singleSetHeight)st.offset-=st.singleSetHeight;
+    st.track.style.transform=`translateY(-${st.offset}px)`;
+    st.raf=requestAnimationFrame(step);
+  }
+  st.raf=requestAnimationFrame(step);
+}
+
+// Tombol manual: jeda antrian berjalan lalu izinkan scroll manual, atau lanjutkan lagi
+function toggleFollowUpPause(layer){
+  const st=FU[layer];
+  st.paused=!st.paused;
+
+  const btn=document.getElementById('fuPauseBtnL'+layer);
+  if(btn){
+    btn.textContent=st.paused?'▶':'⏸';
+    btn.classList.toggle('is-paused',st.paused);
+    btn.title=st.paused?'Lanjutkan antrian berjalan':'Jeda antrian berjalan (bisa scroll manual)';
+  }
+  if(st.vp)st.vp.classList.toggle('fu-vp-scrollable',st.paused);
+
+  if(st.paused){
+    // hentikan animasi, tampilkan list penuh (tidak diduplikasi) agar bisa discroll manual
+    if(st.raf){cancelAnimationFrame(st.raf);st.raf=null;}
+    st.scrolling=false;
+    st.track.style.transform='translateY(0)';
+    st.track.innerHTML=(st.data&&st.data.length)?st.data.map(fuRowHtml).join(''):'<div class="fu-empty">Tidak ada tiket follow up</div>';
+  }else{
+    // lanjutkan: kembali ke mode antrian berjalan otomatis
+    if(st.vp)st.vp.scrollTop=0;
+    renderFollowUpCol(layer, st.data||[]);
+  }
+}
+
+// Copy data satu kolom layer (nomor tiket, petugas, channel, waktu follow up)
+function fuCopyColumn(layer){
+  const data=(FU[layer]&&FU[layer].data)||[];
+  if(!data.length){toast('Tidak ada data untuk disalin');return;}
+  const heads=['Nomor Tiket','Nama Petugas','Channel','Waktu Follow Up'];
+  const text=[heads.join('\t'),...data.map(t=>[
+    t.nomor_tiket||'-',
+    t.nama_petugas||'-',
+    (t.channel||'-').toUpperCase(),
+    fuElapsed(t.first_seen_at)
+  ].join('\t'))].join('\n');
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast(`✅ Data Layer ${layer} berhasil dicopy!`)).catch(()=>fbCopy(text));
+  }else fbCopy(text);
+}
+</script>
+<script src="js/jspdf.umd.min.js"></script>
+<script src="js/jspdf.plugin.autotable.min.js"></script>
+<script src="js/tiket_1.js"></script>
+</body>
+</html>
