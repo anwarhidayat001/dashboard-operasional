@@ -13,6 +13,7 @@ import android.provider.Settings
 import android.view.Gravity
 import android.view.View
 import android.webkit.*
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import java.io.ByteArrayInputStream
@@ -24,14 +25,21 @@ const val BASE_URL = "https://dashboard-operasional-ceisadashboard.apps.dcprod.c
 const val APP_HOST = "appassets.androidplatform.net"
 
 class MainActivity : Activity() {
-    private lateinit var wv: WebView
     private val tabs = listOf("📊\nDashboard" to "index.html", "📈\nGrafik" to "monitoring.html",
         "🖥\nServer" to "server.html", "🎫\nTiket" to "tiket.html")
     private val tabViews = ArrayList<TextView>()
+    private val pages = ArrayList<WebView>()   // 4 WebView hidup bersamaan, data selalu diperbarui di belakang
+    private var current = 0
     private lateinit var alarmBtn: TextView
 
     private val mimes = mapOf("html" to "text/html", "js" to "application/javascript", "css" to "text/css",
         "png" to "image/png", "json" to "application/json", "mp3" to "audio/mpeg")
+
+    // Dijalankan sebelum script halaman: halaman dianggap selalu "terlihat" supaya
+    // auto-refresh tidak berhenti saat tab sedang tidak ditampilkan
+    private val alwaysVisible = "<script>try{Object.defineProperty(document,'hidden',{get:function(){return false}});" +
+        "Object.defineProperty(document,'visibilityState',{get:function(){return 'visible'}});" +
+        "document.addEventListener('visibilitychange',function(e){e.stopImmediatePropagation()},true)}catch(e){}</script>"
 
     private fun err(code: Int, msg: String) = WebResourceResponse("application/json", "utf-8", code, "Error",
         mapOf("Cache-Control" to "no-store"),
@@ -49,7 +57,7 @@ class MainActivity : Activity() {
             val ext = p.substringAfterLast('.', "")
             if (ext == "html") {
                 val html = assets.open("public$p").bufferedReader().readText()
-                    .replace("</head>", "<link rel=\"stylesheet\" href=\"/mobile.css\"></head>")
+                    .replace("</head>", "$alwaysVisible<link rel=\"stylesheet\" href=\"/mobile.css\"></head>")
                 return WebResourceResponse("text/html", "utf-8", ByteArrayInputStream(html.toByteArray()))
             }
             return WebResourceResponse(mimes[ext] ?: "application/octet-stream", "utf-8", assets.open("public$p"))
@@ -85,37 +93,53 @@ class MainActivity : Activity() {
         alarmBtn.setTextColor(Color.parseColor(if (alarmOn()) "#4ade80" else "#f87171"))
     }
 
+    // Tampilkan tab i. Yang lain INVISIBLE (bukan GONE) supaya ukuran layout tetap
+    // dan grafik tetap tergambar benar di belakang.
+    private fun show(i: Int) {
+        current = i
+        pages.forEachIndexed { k, w -> w.visibility = if (k == i) View.VISIBLE else View.INVISIBLE }
+        tabViews.forEachIndexed { k, t ->
+            t.setTextColor(Color.parseColor(if (k == i) "#ffffff" else "#8f9ab3"))
+            t.setBackgroundColor(Color.parseColor(if (k == i) "#3b4560" else "#2d3548"))
+        }
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
+    private fun newWebView(page: String): WebView = WebView(this).apply {
+        setBackgroundColor(Color.parseColor("#1e2433"))
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        settings.mediaPlaybackRequiresUserGesture = false
+        webViewClient = object : WebViewClient() {
+            override fun shouldInterceptRequest(v: WebView, r: WebResourceRequest) = handle(r)
+        }
+        loadUrl("https://$APP_HOST/$page")
+    }
+
     override fun onCreate(s: Bundle?) {
         super.onCreate(s)
         window.statusBarColor = Color.parseColor("#1e2433")
         window.navigationBarColor = Color.parseColor("#2d3548")
-        wv = WebView(this)
-        wv.setBackgroundColor(Color.parseColor("#1e2433"))
-        wv.settings.javaScriptEnabled = true
-        wv.settings.domStorageEnabled = true
-        wv.settings.mediaPlaybackRequiresUserGesture = false
-        wv.webViewClient = object : WebViewClient() {
-            override fun shouldInterceptRequest(v: WebView, r: WebResourceRequest) = handle(r)
-            override fun onPageFinished(v: WebView, url: String) {
-                tabs.forEachIndexed { i, t ->
-                    val on = url.contains(t.second)
-                    tabViews[i].setTextColor(Color.parseColor(if (on) "#ffffff" else "#8f9ab3"))
-                    tabViews[i].setBackgroundColor(Color.parseColor(if (on) "#3b4560" else "#2d3548"))
-                }
-            }
+
+        val stack = FrameLayout(this)
+        tabs.forEach { (_, page) ->
+            val w = newWebView(page)
+            pages.add(w)
+            stack.addView(w, FrameLayout.LayoutParams(-1, -1))
         }
+
         val nav = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setBackgroundColor(Color.parseColor("#2d3548")) }
-        tabs.forEach { (label, page) -> val v = navItem(label) { wv.loadUrl("https://$APP_HOST/$page") }; tabViews.add(v); nav.addView(v) }
+        tabs.forEachIndexed { i, (label, _) -> val v = navItem(label) { show(i) }; tabViews.add(v); nav.addView(v) }
         alarmBtn = navItem("") {
             getSharedPreferences("p", 0).edit().putBoolean("alarm", !alarmOn()).apply(); applyAlarm()
         }
         nav.addView(alarmBtn)
+
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        root.addView(wv, LinearLayout.LayoutParams(-1, 0, 1f))
+        root.addView(stack, LinearLayout.LayoutParams(-1, 0, 1f))
         root.addView(nav, LinearLayout.LayoutParams(-1, -2))
         setContentView(root)
-        wv.loadUrl("https://$APP_HOST/index.html")
+        show(0)
 
         if (Build.VERSION.SDK_INT >= 33) requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
         applyAlarm()
@@ -128,5 +152,8 @@ class MainActivity : Activity() {
     }
 
     @Deprecated("Deprecated in Java")
-    override fun onBackPressed() { if (wv.canGoBack()) wv.goBack() else super.onBackPressed() }
+    override fun onBackPressed() {
+        val w = pages[current]
+        if (w.canGoBack()) w.goBack() else super.onBackPressed()
+    }
 }
