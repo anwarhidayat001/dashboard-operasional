@@ -1,0 +1,104 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#1e2433;--card:#2d3548;--mint:#bdf5cf;--ink:#10321f;--acc:#667eea;--tx:#e8ecf5;--mut:#8f9ab3}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#1e2433,#17301f);color:var(--tx);font:13px system-ui;min-height:100vh;padding-bottom:70px}
+header{background:var(--card);padding:10px 14px;position:sticky;top:0;z-index:5}
+header b{font-size:18px}header small{display:block;color:var(--mut);font-size:11px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid #444c63;z-index:9}
+nav button{flex:1;padding:12px 2px;background:none;border:0;color:var(--mut);font-size:11px;font-weight:600}
+nav button.on{color:#fff;border-top:2px solid var(--acc)}
+main{padding:10px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.card{background:var(--card);border-radius:10px;padding:10px;border-top:2px solid var(--acc)}
+.card h4{margin:0 0 8px;text-align:center;font-size:11px;letter-spacing:.3px}
+.tiles{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.t{background:var(--mint);color:var(--ink);border-radius:6px;padding:4px 8px;min-width:48px;text-align:center}
+.t i{display:block;font-style:normal;font-size:8px;text-transform:uppercase;opacity:.7}.t b{font-size:16px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px}
+.chip{white-space:nowrap;background:var(--card);color:var(--tx);border:0;border-radius:16px;padding:7px 12px;font-size:11px;font-weight:600}
+.chip.on{background:var(--acc)}
+canvas{width:100%;height:240px;background:#38425a;border-radius:8px}
+select,input,button.go{background:var(--card);color:var(--tx);border:1px solid #555e78;border-radius:6px;padding:6px;font-size:12px}
+button.go{background:var(--acc);border:0}.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.leg{display:flex;flex-wrap:wrap;gap:8px;font-size:10px;margin:8px 0}.leg span:before{content:"";display:inline-block;width:10px;height:3px;margin-right:4px;vertical-align:middle;background:var(--c)}
+table{width:100%;border-collapse:collapse;margin-top:8px}th{background:linear-gradient(90deg,#667eea,#764ba2);padding:6px;font-size:10px}td{padding:6px;border-bottom:1px solid #444c63;font-size:11px}
+.pill{padding:8px 14px;border-radius:16px;font-weight:700;font-size:11px}
+.s{display:flex;gap:8px;justify-content:center;margin:8px}.err{color:#ff8a8a;padding:10px}
+pre{white-space:pre-wrap;word-break:break-all;font-size:10px;background:#111827;padding:8px;border-radius:6px;max-height:300px;overflow:auto}
+.tk{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #444c63}.tk span{color:var(--mut);font-size:11px}
+</style></head><body>
+<header><b>CeisMon</b><small id="sub">Real-time Data Monitoring Dokumen Ceisa 4.0</small></header>
+<main id="m"></main>
+<nav id="nav"></nav>
+<script>
+const BASE="https://dashboard-operasional-ceisadashboard.apps.dcprod.customs.go.id";
+const COL=["#4ade80","#38bdf8","#fb923c","#f43f5e","#c026d3","#facc15","#22d3ee","#a3e635","#f87171","#818cf8"];
+const $=s=>document.querySelector(s), m=$("#m");
+let cbs={},n=0,tab="index",timer,hist={},cat=null,rawShow=false,win=60;
+window.__cb=(id,code,body)=>{const f=cbs[id];delete cbs[id];if(f)f(code,body)};
+function get(path){return new Promise((ok,no)=>{const id="r"+(++n);cbs[id]=(c,b)=>{
+  if(c>=200&&c<400){try{ok(JSON.parse(b))}catch(e){no("Respon bukan JSON: "+b.slice(0,200))}}else no("HTTP "+c+": "+b.slice(0,200))};
+  if(window.Native)Native.get(id,BASE+path);else fetch(BASE+path).then(r=>r.json()).then(ok,e=>no(""+e))})}
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const raw=d=>`<div class="row"><button class="go" onclick="rawShow=!rawShow;go()">Raw JSON</button></div>`+(rawShow?`<pre>${esc(JSON.stringify(d,null,1).slice(0,6000))}</pre>`:"");
+const stamp=()=>$("#sub").textContent="Terakhir diupdate: "+new Date().toLocaleString("id-ID");
+function cats(d){let o={};
+  if(Array.isArray(d)){d.forEach((x,i)=>{if(x&&typeof x=="object"){const k=x.kategori||x.name||x.nama||x.title||x.category||("Item "+(i+1));const v={};for(const [a,b] of Object.entries(x))if(typeof b!="object"&&!["kategori","name","nama","title","category"].includes(a))v[a]=b;o[k]=v}});return o}
+  if(d&&typeof d=="object"){for(const [k,v] of Object.entries(d)){o[k]=(v&&typeof v=="object"&&!Array.isArray(v))?v:{nilai:Array.isArray(v)?v.length:v}}}
+  return o}
+const fmt=v=>typeof v=="number"?v.toLocaleString("id-ID"):esc(v);
+function tiles(v){return Object.entries(v).filter(([,x])=>typeof x!="object").map(([k,x])=>`<div class="t"><i>${esc(k)}</i><b>${fmt(x)}</b></div>`).join("")}
+function line(cv,series,xs){const c=cv.getContext("2d"),W=cv.width=cv.clientWidth*2,H=cv.height=cv.clientHeight*2;
+  c.clearRect(0,0,W,H);let mx=1;series.forEach(s=>s.v.forEach(y=>{if(y>mx)mx=y}));const P=50,Q=30;
+  c.fillStyle="#9aa6c0";c.font="20px sans-serif";c.strokeStyle="#55607c";
+  for(let i=0;i<=4;i++){const y=Q+(H-2*Q)*i/4;c.beginPath();c.moveTo(P,y);c.lineTo(W-10,y);c.stroke();c.fillText(Math.round(mx*(1-i/4)),2,y+6)}
+  const L=Math.max(...series.map(s=>s.v.length),2);
+  series.forEach((s,k)=>{c.strokeStyle=COL[k%COL.length];c.lineWidth=3;c.beginPath();s.v.forEach((y,i)=>{const px=P+(W-P-10)*i/(L-1),py=H-Q-(H-2*Q)*y/mx;i?c.lineTo(px,py):c.moveTo(px,py)});c.stroke()});
+  if(xs&&xs.length){c.fillStyle="#9aa6c0";[0,Math.floor(xs.length/2),xs.length-1].forEach(i=>c.fillText(xs[i],P+(W-P-10)*i/Math.max(xs.length-1,1)-30,H-6))}}
+const leg=a=>`<div class="leg">${a.map((s,i)=>`<span style="--c:${COL[i%COL.length]}">${esc(s.n)}</span>`).join("")}</div>`;
+
+async function pIndex(){const d=await get("/DataServlet");stamp();const o=cats(d);
+  m.innerHTML=`<div class="grid">${Object.entries(o).map(([k,v])=>`<div class="card"><h4>${esc(k.toUpperCase())}</h4><div class="tiles">${tiles(v)}</div></div>`).join("")}</div>`+raw(d)}
+
+async function pMon(){const d=await get("/DataServlet");stamp();const o=cats(d),t=Date.now();
+  for(const [k,v] of Object.entries(o)){(hist[k]=hist[k]||[]).push({t,v});if(hist[k].length>1000)hist[k].shift()}
+  if(!cat||!o[cat])cat=Object.keys(o)[0];
+  const cut=t-win*60000,h=(hist[cat]||[]).filter(x=>x.t>=cut),keys=[...new Set(h.flatMap(x=>Object.keys(x.v).filter(a=>typeof x.v[a]=="number")))];
+  const ser=keys.map(k=>({n:cat+"_"+k,v:h.map(x=>+x.v[k]||0)}));
+  m.innerHTML=`<div class="chips">${Object.keys(o).map(k=>`<button class="chip ${k==cat?"on":""}" onclick="cat=this.textContent;go()">${esc(k)}</button>`).join("")}</div>
+  <div class="card"><h4>GRAFIK ${esc(cat)}</h4><div class="row">Tampilkan: <select onchange="win=+this.value;go()">${[[5,"5 Menit"],[15,"15 Menit"],[60,"1 Jam"],[180,"3 Jam"]].map(([a,b])=>`<option value="${a}" ${a==win?"selected":""}>${b}</option>`).join("")}</select></div>
+  <canvas id="cv"></canvas>${leg(ser)}</div>
+  <div class="card" style="margin-top:8px"><h4>DATA TERKINI</h4><div class="tiles">${tiles(o[cat]||{})}</div></div><p style="color:#8f9ab3;font-size:11px">Grafik dikumpulkan selama aplikasi terbuka (polling 10 dtk).</p>`;
+  line($("#cv"),ser,h.map(x=>new Date(x.t).toLocaleTimeString("id-ID")))}
+
+let srvQ="minutes=15";
+function rows(d){if(Array.isArray(d))return d;for(const v of Object.values(d||{}))if(Array.isArray(v))return v;return[]}
+const pick=(r,ks)=>{for(const k of ks)if(r[k]!=null)return r[k]};
+async function pServer(){const d=await get("/api/server_history?"+srvQ);stamp();const R=rows(d),by={};
+  R.forEach(r=>{const nm=pick(r,["server_name","name","nama","server","nama_server"])||"?";const v=+pick(r,["response_time","responseTime","response","ms","latency"])||0;
+    (by[nm]=by[nm]||[]).push({v,t:pick(r,["timestamp","time","waktu","created_at","checked_at"]),s:pick(r,["status"])})});
+  const ser=Object.entries(by).map(([n,a])=>({n,v:a.map(x=>x.v)})),last=Object.entries(by).map(([n,a])=>[n,a[a.length-1]]);
+  const dn=last.filter(([,x])=>x.s&&/down|error|fail|false|0/i.test(x.s)).length,up=last.length-dn;
+  m.innerHTML=`<div class="card"><h4>GRAFIK SERVER</h4><div class="row"><select onchange="srvQ='minutes='+this.value;go()">${[15,30,60,180,1440].map(x=>`<option value="${x}" ${srvQ=="minutes="+x?"selected":""}>${x>=60?x/60+" Jam":x+" Menit"}</option>`).join("")}</select>
+  <input type="datetime-local" id="f"><input type="datetime-local" id="t"><button class="go" onclick="cust()">Tampilkan</button></div><canvas id="cv"></canvas>${leg(ser)}</div>
+  <div class="s"><span class="pill" style="background:#22c55e">UP: ${up}</span><span class="pill" style="background:#ef4444">DOWN: ${dn}</span></div>
+  <table><tr><th>NAMA SERVER</th><th>RESPONSE</th><th>UPDATE</th></tr>${last.map(([n,x])=>`<tr><td>${esc(n)}</td><td>${x.v} ms</td><td>${esc(x.t||"")}</td></tr>`).join("")}</table>`+raw(d);
+  line($("#cv"),ser)}
+function cust(){const f=$("#f").value,t=$("#t").value;if(!f||!t)return;srvQ="from="+encodeURIComponent(new Date(f).toISOString())+"&to="+encodeURIComponent(new Date(t).toISOString());go()}
+
+async function pTiket(){const [a,f]=await Promise.all([get("/api/tickets?action=all"),get("/api/tickets/followups").catch(e=>({error:e}))]);stamp();
+  const A=rows(a),F=rows(f),st={};A.forEach(x=>{const k=pick(x,["status","layer","status_tiket"])||"Lainnya";st[k]=(st[k]||0)+1});
+  const li=x=>`<div class="tk"><div><b>${esc(pick(x,["nomor_tiket","ticket_no","nomor","id","no_tiket"])||"")}</b><br><span>${esc(pick(x,["nama_petugas","petugas","nama","pemohon","user"])||"")}</span></div><span>${esc(pick(x,["status","channel","layer","durasi"])||"")}</span></div>`;
+  m.innerHTML=`<div class="grid"><div class="card"><h4>TOTAL TIKET</h4><div class="tiles"><div class="t"><i>total</i><b>${A.length}</b></div></div></div>
+  <div class="card"><h4>FOLLOW UP</h4><div class="tiles"><div class="t"><i>belum selesai</i><b>${F.length}</b></div></div></div>
+  ${Object.entries(st).map(([k,v])=>`<div class="card"><h4>${esc(String(k).toUpperCase())}</h4><div class="tiles"><div class="t"><b>${v}</b></div></div></div>`).join("")}</div>
+  <div class="card" style="margin-top:8px"><h4>FOLLOW UP TIKET</h4>${F.slice(0,30).map(li).join("")||"Tidak ada"}</div>
+  <div class="card" style="margin-top:8px"><h4>TIKET TERBARU</h4>${A.slice(0,30).map(li).join("")}</div>`+raw({all:a,followups:f})}
+
+const TABS={index:["Dashboard",pIndex,30],monitoring:["Grafik",pMon,10],server:["Server",pServer,30],tiket:["Tiket",pTiket,30]};
+$("#nav").innerHTML=Object.entries(TABS).map(([k,v])=>`<button id="b-${k}" onclick="tab='${k}';go()">${v[0]}</button>`).join("");
+async function go(){clearInterval(timer);Object.keys(TABS).forEach(k=>$("#b-"+k).className=k==tab?"on":"");
+  const run=async()=>{try{await TABS[tab][1]()}catch(e){m.insertAdjacentHTML("afterbegin",`<div class="err">Gagal memuat: ${esc(e)}</div>`)}};
+  await run();timer=setInterval(run,TABS[tab][2]*1000)}
+go();
+</script></body></html>
